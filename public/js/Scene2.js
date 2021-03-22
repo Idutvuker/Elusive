@@ -7,32 +7,32 @@ class Scene2 extends Phaser.Scene {
     }
 
     create() {
+        this.socket = io();
         this.background = this.add.image(0, 0, "background");
         this.background.setOrigin(0, 0);
 
         this.bullets = this.physics.add.group({
             classType: Bullet,
-            maxSize: 30,
-            runChildUpdate: true
+            maxSize: 50,
+            collideWorldBounds: true
         });
 
         this.addShips();
+
+        this.physics.add.collider(this.powerUps, this.bullets, function(powerUp, bullet){
+            bullet.setActive(false);
+            bullet.setVisible(false);
+            bullet.body.stop();
+        });
+        this.physics.add.overlap(this.ship1, this.powerUps, this.pickPowerUp, null, this);
+        this.physics.add.overlap(this.bullets, this.ship2, this.hitEnemy, null, this);
+        this.physics.add.overlap(this.bullets, this.ship3, this.hitEnemy, null, this);
+        this.physics.add.overlap(this.bullets, this.ship4, this.hitEnemy, null, this);
     }
 
     update(time, delta) {
         this.moveShip(this.ship1, 1);
-        this.movePlayerManager();
-        if (this.spacebar.isDown && time > lastFired){
-            var bullet = this.bullets.get();
-            bullet.play("beam_anim");
-
-            if (bullet)
-            {
-                bullet.fire(this.ship1);
-
-                lastFired = time + 100;
-            }
-        }
+        this.playerControl(time, delta);
         this.moveShip(this.ship2, 1);
         this.moveShip(this.ship3, 1);
         this.moveShip(this.ship4, 1);
@@ -83,7 +83,7 @@ class Scene2 extends Phaser.Scene {
         });
         this.anims.create({
             key: "explode",
-            frames: this.anims.generateFrameNumbers("ship4"),
+            frames: this.anims.generateFrameNumbers("explosion"),
             frameRate: 20,
             repeat: 0,
             hideOnComplete: true
@@ -143,7 +143,7 @@ class Scene2 extends Phaser.Scene {
         this.projectiles = this.physics.add.group();
     }
 
-    movePlayerManager() {
+    playerControl(time, delta) {
 
         if (this.cursorKeys.left.isDown) {
             this.ship1.setAngularVelocity(-200);
@@ -152,9 +152,33 @@ class Scene2 extends Phaser.Scene {
         }else{
             this.ship1.setAngularVelocity(0);
         }
+
+        if (this.spacebar.isDown && time > lastFired){
+            var bullet = this.bullets.get();
+            //bullet.play("beam_anim");
+
+            if (bullet)
+            {
+                bullet.fire(this.ship1);
+                bullet.play("beam_anim");
+
+                lastFired = time + 100;
+            }
+        }
     }
 
     moveShip(ship, speed) {
         this.physics.velocityFromRotation(ship.rotation, 200, ship.body.acceleration);
+    }
+
+    pickPowerUp(player, powerUp){
+        powerUp.disableBody(true, true);
+    }
+
+    hitEnemy(bullet, enemy){
+        bullet.setActive(false);
+        bullet.setVisible(false);
+        bullet.body.stop();
+        enemy.destroy();
     }
 }
