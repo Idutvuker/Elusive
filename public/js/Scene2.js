@@ -7,111 +7,80 @@ class Scene2 extends Phaser.Scene {
     }
 
     create() {
+        var self = this;
         this.socket = io();
+        this.otherPlayers = this.physics.add.group();
+        this.socket.on('currentPlayers', function (players) {
+            Object.keys(players).forEach(function (id) {
+                if (players[id].playerId === self.socket.id) {
+                    addPlayer(self, players[id]);
+                } else {
+                    addOtherPlayers(self, players[id]);
+                }
+            });
+        });
+        this.socket.on('newPlayer', function (playerInfo) {
+            addOtherPlayers(self, playerInfo);
+        });
+        this.socket.on('disconnect', function (playerId) {
+            self.otherPlayers.getChildren().forEach(function (otherPlayer) {
+                if (playerId === otherPlayer.playerId) {
+                    otherPlayer.destroy();
+                }
+            });
+        });
+        this.socket.on('playerMoved', function (playerInfo) {
+            self.otherPlayers.getChildren().forEach(function (otherPlayer) {
+                if (playerInfo.playerId === otherPlayer.playerId) {
+                    otherPlayer.setRotation(playerInfo.rotation);
+                    otherPlayer.setPosition(playerInfo.x, playerInfo.y);
+                }
+            });
+        });
         this.background = this.add.image(0, 0, "background");
         this.background.setOrigin(0, 0);
-
+        this.cursorKeys = this.input.keyboard.createCursorKeys();
+        this.spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.bullets = this.physics.add.group({
             classType: Bullet,
-            maxSize: 50,
+            maxSize: 200,
             collideWorldBounds: true
         });
+        this.socket.on('playerShot', function (playerInfo) {
+            self.otherPlayers.getChildren().forEach(function (otherPlayer) {
+                if (playerInfo.playerId === otherPlayer.playerId) {
+                    var bullet = self.bullets.get();
 
-        this.addShips();
+                    if (bullet)
+                    {
+                        bullet.fire(otherPlayer);
+                        bullet.play("beam_anim");
+                    }
+                }
+            });
+        });
+        /*this.socket.on('playerDied', function (playerInfo) {
+            self.otherPlayers.getChildren().forEach(function (otherPlayer) {
+                if (playerInfo.playerId === otherPlayer.playerId) {
+                    otherPlayer.destroy();
+                }
+            });
+        });*/
 
-        this.physics.add.collider(this.powerUps, this.bullets, function(powerUp, bullet){
+        /*this.physics.add.collider(this.powerUps, this.bullets, function(powerUp, bullet){
             bullet.setActive(false);
             bullet.setVisible(false);
             bullet.body.stop();
-        });
-        this.physics.add.overlap(this.ship1, this.powerUps, this.pickPowerUp, null, this);
-        this.physics.add.overlap(this.bullets, this.ship2, this.hitEnemy, null, this);
-        this.physics.add.overlap(this.bullets, this.ship3, this.hitEnemy, null, this);
-        this.physics.add.overlap(this.bullets, this.ship4, this.hitEnemy, null, this);
+        });*/
+        //this.physics.add.overlap(this.ship1, this.powerUps, this.pickPowerUp, null, this);
+        this.physics.add.overlap(this.bullets, this.otherPlayers, this.hitEnemy, null, this);
     }
 
     update(time, delta) {
-        this.moveShip(this.ship1, 1);
         this.playerControl(time, delta);
-        this.moveShip(this.ship2, 1);
-        this.moveShip(this.ship3, 1);
-        this.moveShip(this.ship4, 1);
     }
 
-    addShips() {
-        this.ship1 = this.physics.add.sprite(30, 30, "ship1").setDepth(2);
-        this.ship1.setCollideWorldBounds(true);
-        this.ship1.setScale(2);
-        //this.ship1.setAngle(45);
-        //this.ship1.setDrag(300);
-        //this.ship1.setAngularDrag(400);
-        this.anims.create({
-            key: "ship1_anim",
-            frames: this.anims.generateFrameNumbers("ship1"),
-            frameRate: 20,
-            repeat: -1
-        });
-        this.ship2 = this.physics.add.sprite(config.width - 30, 30, "ship2");
-        this.ship2.setCollideWorldBounds(true);
-        this.ship2.setScale(2);
-        this.ship2.setAngle(135);
-        this.anims.create({
-            key: "ship2_anim",
-            frames: this.anims.generateFrameNumbers("ship2"),
-            frameRate: 20,
-            repeat: -1
-        });
-        this.ship3 = this.physics.add.sprite(config.width - 30, config.height - 30, "ship3");
-        this.ship3.setCollideWorldBounds(true);
-        this.ship3.setScale(2);
-        this.ship3.setAngle(-135);
-        this.anims.create({
-            key: "ship3_anim",
-            frames: this.anims.generateFrameNumbers("ship3"),
-            frameRate: 20,
-            repeat: -1
-        });
-        this.ship4 = this.physics.add.sprite(30, config.height - 30, "ship4");
-        this.ship4.setCollideWorldBounds(true);
-        this.ship4.setScale(2);
-        this.ship4.setAngle(-45);
-        this.anims.create({
-            key: "ship4_anim",
-            frames: this.anims.generateFrameNumbers("ship4"),
-            frameRate: 20,
-            repeat: -1
-        });
-        this.anims.create({
-            key: "explode",
-            frames: this.anims.generateFrameNumbers("explosion"),
-            frameRate: 20,
-            repeat: 0,
-            hideOnComplete: true
-        });
-        this.anims.create({
-            key: "red",
-            frames: this.anims.generateFrameNumbers("power-up", {
-                start: 0,
-                end: 1
-            }),
-            frameRate: 20,
-            repeat: -1,
-        });
-        this.anims.create({
-            key: "gray",
-            frames: this.anims.generateFrameNumbers("power-up", {
-                start: 2,
-                end: 3
-            }),
-            frameRate: 20,
-            repeat: -1,
-        });
-        this.anims.create({
-            key: "beam_anim",
-            frames: this.anims.generateFrameNumbers("beam"),
-            frameRate: 20,
-            repeat: -1,
-        });
+    /*addPowerUps() {
 
         this.powerUps = this.physics.add.group();
 
@@ -131,35 +100,41 @@ class Scene2 extends Phaser.Scene {
             powerUp.setCollideWorldBounds(true);
             powerUp.setBounce(1);
         }
-
-        this.ship1.play("ship1_anim");
-        this.ship2.play("ship2_anim");
-        this.ship3.play("ship3_anim");
-        this.ship4.play("ship4_anim");
-
-        this.cursorKeys = this.input.keyboard.createCursorKeys();
-        this.spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-
-        this.projectiles = this.physics.add.group();
-    }
+    }*/
 
     playerControl(time, delta) {
+        if (this.ship) {
+            this.physics.velocityFromRotation(this.ship.rotation, 200, this.ship.body.acceleration);
+            if (this.cursorKeys.left.isDown) {
+                this.ship.setAngularVelocity(-200);
+            } else if (this.cursorKeys.right.isDown) {
+                this.ship.setAngularVelocity(200);
+            } else {
+                this.ship.setAngularVelocity(0);
+            }
+            // emit player movement
+            var x = this.ship.x;
+            var y = this.ship.y;
+            var r = this.ship.rotation;
+            if (this.ship.oldPosition && (x !== this.ship.oldPosition.x || y !== this.ship.oldPosition.y || r !== this.ship.oldPosition.rotation)) {
+                this.socket.emit('playerMovement', {x: this.ship.x, y: this.ship.y, rotation: this.ship.rotation});
+            }
 
-        if (this.cursorKeys.left.isDown) {
-            this.ship1.setAngularVelocity(-200);
-        } else if (this.cursorKeys.right.isDown) {
-            this.ship1.setAngularVelocity(200);
-        }else{
-            this.ship1.setAngularVelocity(0);
+            // save old position data
+            this.ship.oldPosition = {
+                x: this.ship.x,
+                y: this.ship.y,
+                rotation: this.ship.rotation
+            };
         }
 
         if (this.spacebar.isDown && time > lastFired){
             var bullet = this.bullets.get();
-            //bullet.play("beam_anim");
 
             if (bullet)
             {
-                bullet.fire(this.ship1);
+                this.socket.emit('playerShooting', {});
+                bullet.fire(this.ship);
                 bullet.play("beam_anim");
 
                 lastFired = time + 100;
@@ -167,18 +142,36 @@ class Scene2 extends Phaser.Scene {
         }
     }
 
-    moveShip(ship, speed) {
-        this.physics.velocityFromRotation(ship.rotation, 200, ship.body.acceleration);
-    }
-
-    pickPowerUp(player, powerUp){
+    /*pickPowerUp(player, powerUp){
         powerUp.disableBody(true, true);
-    }
+    }*/
 
-    hitEnemy(bullet, enemy){
+    /*hitEnemy(bullet, enemy){
         bullet.setActive(false);
         bullet.setVisible(false);
         bullet.body.stop();
-        enemy.destroy();
-    }
+        this.socket.emit('playerDeath', {});
+        //enemy.destroy();
+    }*/
+}
+
+function addPlayer(self, playerInfo) {
+    self.ship = self.physics.add.sprite(playerInfo.x, playerInfo.y, 'ship1').setDepth(2);
+    self.ship.setTint(playerInfo.color);
+    self.ship.setScale(2);
+    self.ship.setCollideWorldBounds(true);
+    self.ship.setDrag(100);
+    self.ship.setAngularDrag(100);
+    self.ship.setMaxVelocity(200);
+    self.ship.play("ship1_anim");
+}
+
+function addOtherPlayers(self, playerInfo) {
+    const otherPlayer = self.physics.add.sprite(playerInfo.x, playerInfo.y, 'ship1').setDepth(2);
+    otherPlayer.setTint(playerInfo.color);
+    otherPlayer.setScale(2);
+    otherPlayer.rotation = playerInfo.rotation;
+    otherPlayer.playerId = playerInfo.playerId;
+    otherPlayer.play("ship1_anim");
+    self.otherPlayers.add(otherPlayer);
 }
