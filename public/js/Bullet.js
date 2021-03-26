@@ -9,7 +9,8 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
         this._temp = new Phaser.Math.Vector2();
     }
 
-    fire(ship) {
+    fire(ship, time) {
+        this.owner = ship;
         this.setActive(true);
         this.setVisible(true);
         this.setAngle(ship.body.rotation);

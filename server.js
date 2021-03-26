@@ -32,17 +32,21 @@ io.on('connection', function (socket) {
         io.emit('disconnect', socket.id);
     });
     socket.on('playerMovement', function (movementData) {
-        players[socket.id].x = movementData.x;
-        players[socket.id].y = movementData.y;
-        players[socket.id].rotation = movementData.rotation;
-        socket.broadcast.emit('playerMoved', players[socket.id]);
+        if(players[socket.id]){
+            players[socket.id].x = movementData.x;
+            players[socket.id].y = movementData.y;
+            players[socket.id].rotation = movementData.rotation;
+            socket.broadcast.emit('playerMoved', players[socket.id]);
+        }
     });
     socket.on('playerShooting', function (movementData) {
         socket.broadcast.emit('playerShot', players[socket.id]);
     });
     socket.on('playerDeath', function (movementData) {
-        delete players[socket.id];
-        socket.broadcast.emit('playerDied', players[socket.id]);
+        socket.broadcast.emit('playerDied', players[movementData.killedPlayerId]);
+        delete players[movementData.killedPlayerId];
+        //delete players[socket.id];
+        //io.emit('disconnect', socket.id);
     });
 });
 
