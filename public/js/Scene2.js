@@ -7,6 +7,16 @@ class Scene2 extends Phaser.Scene {
     }
 
     create() {
+        this.background = this.add.image(0, 0, "background");
+        this.background.setOrigin(0, 0);
+        this.cursorKeys = this.input.keyboard.createCursorKeys();
+        this.spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        this.bullets = this.physics.add.group({
+            classType: Bullet,
+            maxSize: 200,
+            collideWorldBounds: true
+        });
+
         var self = this;
         this.socket = io();
         this.otherPlayers = this.physics.add.group();
@@ -37,15 +47,6 @@ class Scene2 extends Phaser.Scene {
                 }
             });
         });
-        this.background = this.add.image(0, 0, "background");
-        this.background.setOrigin(0, 0);
-        this.cursorKeys = this.input.keyboard.createCursorKeys();
-        this.spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-        this.bullets = this.physics.add.group({
-            classType: Bullet,
-            maxSize: 200,
-            collideWorldBounds: true
-        });
         this.socket.on('playerShot', function (playerInfo) {
             self.otherPlayers.getChildren().forEach(function (otherPlayer) {
                 if (playerInfo.playerId === otherPlayer.playerId) {
@@ -59,13 +60,16 @@ class Scene2 extends Phaser.Scene {
                 }
             });
         });
-        /*this.socket.on('playerDied', function (playerInfo) {
+        this.socket.on('playerDied', function (playerInfo) {
             self.otherPlayers.getChildren().forEach(function (otherPlayer) {
                 if (playerInfo.playerId === otherPlayer.playerId) {
                     otherPlayer.destroy();
                 }
             });
-        });*/
+            if (self.ship.playerId === playerInfo.playerId){
+                self.ship.destroy();
+            }
+        });
 
         /*this.physics.add.collider(this.powerUps, this.bullets, function(powerUp, bullet){
             bullet.setActive(false);
@@ -73,7 +77,8 @@ class Scene2 extends Phaser.Scene {
             bullet.body.stop();
         });*/
         //this.physics.add.overlap(this.ship1, this.powerUps, this.pickPowerUp, null, this);
-        this.physics.add.overlap(this.bullets, this.otherPlayers, this.hitEnemy, null, this);
+        //this.physics.add.overlap(this.bullets, this.otherPlayers, this.hitEnemy, null, this);
+        //this.physics.add.overlap(this.bullets, this.ship, this.hitEnemy, null, this);
     }
 
     update(time, delta) {
@@ -146,13 +151,17 @@ class Scene2 extends Phaser.Scene {
         powerUp.disableBody(true, true);
     }*/
 
-    /*hitEnemy(bullet, enemy){
-        bullet.setActive(false);
-        bullet.setVisible(false);
-        bullet.body.stop();
-        this.socket.emit('playerDeath', {});
-        //enemy.destroy();
-    }*/
+    hitEnemy(bullet, enemy){
+        console.log(bullet.owner.playerId );
+        console.log(enemy.playerId );
+        if (bullet.owner.playerId !== enemy.playerId){
+            bullet.setActive(false);
+            bullet.setVisible(false);
+            bullet.body.stop();
+            //this.socket.emit('playerDeath', {killedPlayerId: enemy.playerId});
+            enemy.destroy();
+        }
+    }
 }
 
 function addPlayer(self, playerInfo) {
@@ -164,6 +173,7 @@ function addPlayer(self, playerInfo) {
     self.ship.setAngularDrag(100);
     self.ship.setMaxVelocity(200);
     self.ship.play("ship1_anim");
+    self.physics.add.overlap(self.bullets, self.otherPlayers, self.hitEnemy, null, self);
 }
 
 function addOtherPlayers(self, playerInfo) {
@@ -174,4 +184,5 @@ function addOtherPlayers(self, playerInfo) {
     otherPlayer.playerId = playerInfo.playerId;
     otherPlayer.play("ship1_anim");
     self.otherPlayers.add(otherPlayer);
+    self.physics.add.overlap(self.bullets, self.otherPlayers, self.hitEnemy, null, self);
 }
