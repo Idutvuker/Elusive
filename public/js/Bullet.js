@@ -5,7 +5,7 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
         scene.physics.world.on('worldbounds', this.onWorldBounds);
         this.setBlendMode(1);
         this.setDepth(1);
-        this.speed = 300;
+        this.speed = 600;
         this._temp = new Phaser.Math.Vector2();
     }
 
@@ -21,8 +21,7 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
 
         this.scene.physics.velocityFromRotation(angle, this.speed, this.body.velocity);
 
-        this.body.velocity.x *= 2;
-        this.body.velocity.y *= 2;
+        this.body.velocity.add(ship.body.velocity);
     }
 
     onWorldBounds (body)
