@@ -114,7 +114,7 @@ class Scene2 extends Phaser.Scene {
 
     playerControl(time, delta) {
         if (this.ship) {
-            this.physics.velocityFromRotation(this.ship.rotation, 0, this.ship.body.acceleration);
+            this.physics.velocityFromRotation(this.ship.rotation, 200, this.ship.body.acceleration);
             if (this.cursorKeys.left.isDown) {
                 this.ship.setAngularVelocity(-200);
             } else if (this.cursorKeys.right.isDown) {
