@@ -13,10 +13,11 @@ app.get('/', function (req, res) {
 });
 
 io.on('connection', function (socket) {
-    console.log('a user connected');
+    console.log(`${socket.id} connected`);
+
     var index = Math.floor(Math.random() * colors.length);
     var color = colors[index];
-    delete colors[index];
+    //delete colors[index];
     players[socket.id] = {
         rotation: 0,
         x: Math.floor(Math.random() * 700) + 50,
@@ -24,13 +25,17 @@ io.on('connection', function (socket) {
         playerId: socket.id,
         color: color
     };
+
     socket.emit('currentPlayers', players);
     socket.broadcast.emit('newPlayer', players[socket.id]);
+
     socket.on('disconnect', function () {
-        console.log('user disconnected');
+        console.log(`${socket.id} disconnected`);
+
         delete players[socket.id];
         io.emit('disconnect', socket.id);
     });
+
     socket.on('playerMovement', function (movementData) {
         if(players[socket.id]){
             players[socket.id].x = movementData.x;
@@ -39,17 +44,20 @@ io.on('connection', function (socket) {
             socket.broadcast.emit('playerMoved', players[socket.id]);
         }
     });
+
     socket.on('playerShooting', function (movementData) {
         socket.broadcast.emit('playerShot', players[socket.id]);
     });
-    socket.on('playerDeath', function (movementData) {
-        socket.broadcast.emit('playerDied', players[movementData.killedPlayerId]);
-        delete players[movementData.killedPlayerId];
+
+    socket.on('playerDeath', function (data) {
+        console.log(`playerDied ${socket.id}`);
+        io.emit('playerDied', players[data.killedPlayerId]);
+        delete players[data.killedPlayerId];
         //delete players[socket.id];
         //io.emit('disconnect', socket.id);
     });
 });
 
-server.listen(process.env.PORT || 8081, function () {
+server.listen(process.env.PORT || 3000, function () {
     console.log(`Listening on ${server.address().port}`);
 });

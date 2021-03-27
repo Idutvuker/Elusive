@@ -28,6 +28,7 @@ class Scene2 extends Phaser.Scene {
                     addOtherPlayers(self, players[id]);
                 }
             });
+            self.physics.add.overlap(self.bullets, self.otherPlayers, self.hitEnemy, null, self);
         });
         this.socket.on('newPlayer', function (playerInfo) {
             addOtherPlayers(self, playerInfo);
@@ -61,13 +62,17 @@ class Scene2 extends Phaser.Scene {
             });
         });
         this.socket.on('playerDied', function (playerInfo) {
+            console.log(`${playerInfo} died`);
             self.otherPlayers.getChildren().forEach(function (otherPlayer) {
                 if (playerInfo.playerId === otherPlayer.playerId) {
+                    console.log('but not me!');
                     otherPlayer.destroy();
                 }
             });
             if (self.ship.playerId === playerInfo.playerId){
+                console.log('me :(');
                 self.ship.destroy();
+                //window.location.replace("died.html");
             }
         });
 
@@ -109,7 +114,7 @@ class Scene2 extends Phaser.Scene {
 
     playerControl(time, delta) {
         if (this.ship) {
-            this.physics.velocityFromRotation(this.ship.rotation, 200, this.ship.body.acceleration);
+            this.physics.velocityFromRotation(this.ship.rotation, 0, this.ship.body.acceleration);
             if (this.cursorKeys.left.isDown) {
                 this.ship.setAngularVelocity(-200);
             } else if (this.cursorKeys.right.isDown) {
@@ -151,15 +156,15 @@ class Scene2 extends Phaser.Scene {
         powerUp.disableBody(true, true);
     }*/
 
-    hitEnemy(bullet, enemy){
-        console.log(bullet.owner.playerId );
-        console.log(enemy.playerId );
-        if (bullet.owner.playerId !== enemy.playerId){
+    hitEnemy(bullet, enemy) {
+        if (bullet.owner.playerId !== enemy.playerId && bullet.owner.playerId == this.ship.playerId) {
+            console.log(`bullet hit ${enemy.playerId} owner: ${bullet.owner.playerId} `);
             bullet.setActive(false);
             bullet.setVisible(false);
             bullet.body.stop();
-            //this.socket.emit('playerDeath', {killedPlayerId: enemy.playerId});
-            enemy.destroy();
+            bullet.destroy();
+            this.socket.emit('playerDeath', {killedPlayerId: enemy.playerId});
+            //enemy.destroy();
         }
     }
 }
@@ -173,7 +178,8 @@ function addPlayer(self, playerInfo) {
     self.ship.setAngularDrag(100);
     self.ship.setMaxVelocity(200);
     self.ship.play("ship1_anim");
-    self.physics.add.overlap(self.bullets, self.otherPlayers, self.hitEnemy, null, self);
+    
+    self.ship.playerId = playerInfo.playerId;
 }
 
 function addOtherPlayers(self, playerInfo) {
@@ -184,5 +190,5 @@ function addOtherPlayers(self, playerInfo) {
     otherPlayer.playerId = playerInfo.playerId;
     otherPlayer.play("ship1_anim");
     self.otherPlayers.add(otherPlayer);
-    self.physics.add.overlap(self.bullets, self.otherPlayers, self.hitEnemy, null, self);
+    
 }
