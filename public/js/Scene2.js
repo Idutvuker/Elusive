@@ -49,6 +49,9 @@ class Scene2 extends Phaser.Scene {
             });
         });
         this.socket.on('playerShot', function (playerInfo) {
+            if (self.scene.isPaused())
+                return;
+                
             self.otherPlayers.getChildren().forEach(function (otherPlayer) {
                 if (playerInfo.playerId === otherPlayer.playerId) {
                     var bullet = self.bullets.get();
@@ -72,6 +75,7 @@ class Scene2 extends Phaser.Scene {
             if (self.ship.playerId === playerInfo.playerId){
                 console.log('me :(');
                 self.ship.destroy();
+                self.scene.pause();
                 //window.location.replace("died.html");
             }
         });
