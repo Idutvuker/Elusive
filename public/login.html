@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Sign in</title>
+</head>
+<body>
+<!-- Game title-->
+<p class="title">ELUSIVE BOYS</p>
+
+<!-- Main sig in view-->
+<div class="main">
+    <p class="sign">Sign in</p>
+    <form class="formSignIn">
+        <input class="un" type="text" placeholder="Username">
+        <input class="pass" type="password" placeholder="Password">
+    </form>
+    <button class="button" id="submit" align="center">Sign in</button>
+    <button id="mySignUp" class="signUp">Sign up</button>
+</div>
+
+<!-- The Modal -->
+<div id="myModal" class="modal">
+
+    <!-- Modal content -->
+    <div class="modal-content">
+        <form class="formSignUp">
+            <input class="email" type="email" placeholder="Email">
+            <input class="un" type="text" placeholder="Username">
+            <input class="pass" type="password" placeholder="Password">
+            <input class="pass" type="password" placeholder="Repeate password">
+        </form>
+        <div class="buttonsContainer">
+            <button class="button" id="cancel">Cancel</button>
+            <button class="button" id="done">Done</button>
+        </div>
+    </div>
+</div>
+</body>
+<footer>
+    <script type="text/javascript" src="js/modal.js"></script>
+</footer>
+</html>
