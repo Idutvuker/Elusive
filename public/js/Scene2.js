@@ -1,6 +1,6 @@
 var lastFired = 0;
 
-class Scene2 extends Phaser.Scene {
+class MainScene extends Phaser.Scene {
 
     constructor() {
         super("playGame");
@@ -76,18 +76,8 @@ class Scene2 extends Phaser.Scene {
                 console.log('me :(');
                 self.ship.destroy();
                 self.scene.pause();
-                //window.location.replace("died.html");
             }
         });
-
-        /*this.physics.add.collider(this.powerUps, this.bullets, function(powerUp, bullet){
-            bullet.setActive(false);
-            bullet.setVisible(false);
-            bullet.body.stop();
-        });*/
-        //this.physics.add.overlap(this.ship1, this.powerUps, this.pickPowerUp, null, this);
-        //this.physics.add.overlap(this.bullets, this.otherPlayers, this.hitEnemy, null, this);
-        //this.physics.add.overlap(this.bullets, this.ship, this.hitEnemy, null, this);
     }
 
     update(time, delta) {
