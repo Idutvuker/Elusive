@@ -7,6 +7,8 @@ class MainScene extends Phaser.Scene {
     }
 
     create() {
+        const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
+        const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
         this.background = this.add.image(0, 0, "background");
         this.background.setOrigin(0, 0);
         this.cursorKeys = this.input.keyboard.createCursorKeys();
@@ -75,8 +77,21 @@ class MainScene extends Phaser.Scene {
             if (self.ship.playerId === playerInfo.playerId){
                 console.log('me :(');
                 self.ship.destroy();
-                self.scene.pause();
+                self.ship = undefined;
+                this.diedText = self.add.text(screenCenterX, screenCenterY, 'YOU DIED', { fontSize: '40px', fill: '#ff001e' }).setOrigin(0.5);
+                //self.scene.pause();
             }
+        });
+        this.socket.on('gameOver', function (winnerScore, currentPlayerScore) {
+            if (this.diedText !== undefined){
+                this.diedText.destroy();
+            }
+            console.log(`winner score: ${winnerScore}`);
+            this.winnerText = self.add.text(screenCenterX, screenCenterY - 50, `WINNER SCORE: ${winnerScore}`, { fontSize: '40px', fill: '#faf8f8' }).setOrigin(0.5);
+            this.currentPlayerText = self.add.text(screenCenterX, screenCenterY, `YOUR SCORE: ${currentPlayerScore}`, { fontSize: '40px', fill: '#faf8f8' }).setOrigin(0.5);
+            this.backToMainMenuButton = self.add.text(screenCenterX, screenCenterY + 50, 'Back to main menu', { fontSize: '40px', fill: '#faf8f8' }).setOrigin(0.5)
+                .setInteractive()
+                .on('pointerdown', () => actionOnClick() );
         });
     }
 
@@ -84,30 +99,9 @@ class MainScene extends Phaser.Scene {
         this.playerControl(time, delta);
     }
 
-    /*addPowerUps() {
-
-        this.powerUps = this.physics.add.group();
-
-        var maxObjects = 4;
-        for (var i = 0; i <= maxObjects; i++) {
-            var powerUp = this.physics.add.sprite(16, 16, "power-up");
-            this.powerUps.add(powerUp);
-            powerUp.setRandomPosition(0, 0, game.config.width, game.config.height);
-
-            if (Math.random() > 0.5) {
-                powerUp.play("red");
-            } else {
-                powerUp.play("gray");
-            }
-
-            powerUp.setVelocity(100);
-            powerUp.setCollideWorldBounds(true);
-            powerUp.setBounce(1);
-        }
-    }*/
-
     playerControl(time, delta) {
-        if (this.ship) {
+        if (this.ship !== undefined) {
+            console.log(`This.ship: ${this.ship}`)
             this.physics.velocityFromRotation(this.ship.rotation, 200, this.ship.body.acceleration);
             if (this.cursorKeys.left.isDown) {
                 this.ship.setAngularVelocity(-200);
@@ -146,19 +140,17 @@ class MainScene extends Phaser.Scene {
         }
     }
 
-    /*pickPowerUp(player, powerUp){
-        powerUp.disableBody(true, true);
-    }*/
 
     hitEnemy(bullet, enemy) {
-        if (bullet.owner.playerId !== enemy.playerId && bullet.owner.playerId == this.ship.playerId) {
+        if (this.ship !== undefined && bullet.owner.playerId !== enemy.playerId && bullet.owner.playerId === this.ship.playerId) {
             console.log(`bullet hit ${enemy.playerId} owner: ${bullet.owner.playerId} `);
             bullet.setActive(false);
             bullet.setVisible(false);
-            bullet.body.stop();
+            if(bullet.body !== undefined){
+                bullet.body.stop();
+            }
             bullet.destroy();
-            this.socket.emit('playerDeath', {killedPlayerId: enemy.playerId});
-            //enemy.destroy();
+            this.socket.emit('playerDeath', {killedPlayerId: enemy.playerId, killerPlayerId: bullet.owner.playerId});
         }
     }
 }
@@ -185,4 +177,8 @@ function addOtherPlayers(self, playerInfo) {
     otherPlayer.play("ship1_anim");
     self.otherPlayers.add(otherPlayer);
     
+}
+
+function actionOnClick() {
+    window.open("https://yandex.ru")
 }

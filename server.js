@@ -4,7 +4,11 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
 var players = {};
+var scores = {};
 var colors = [0xFF0000, 0x0000FF, 0x00FF00, 0xFFFF00];
+var winnerCondition = 8;
+var countOfPlayers = 3;
+var currentPlayersCount = 0;
 
 app.use(express.static(__dirname + '/public'));
 
@@ -17,7 +21,7 @@ io.on('connection', function (socket) {
 
     var index = Math.floor(Math.random() * colors.length);
     var color = colors[index];
-    //delete colors[index];
+    scores[socket.id] = 0;
     players[socket.id] = {
         rotation: 0,
         x: Math.floor(Math.random() * 700) + 50,
@@ -25,14 +29,19 @@ io.on('connection', function (socket) {
         playerId: socket.id,
         color: color
     };
+    currentPlayersCount += 1;
 
-    socket.emit('currentPlayers', players);
-    socket.broadcast.emit('newPlayer', players[socket.id]);
+    if (currentPlayersCount === countOfPlayers){
+        console.log(`count of players ${currentPlayersCount}`)
+        io.emit('currentPlayers', players);
+        socket.broadcast.emit('newPlayer', players[socket.id]);
+    }
 
     socket.on('disconnect', function () {
         console.log(`${socket.id} disconnected`);
 
         delete players[socket.id];
+        currentPlayersCount -= 1;
         io.emit('disconnect', socket.id);
     });
 
@@ -51,10 +60,14 @@ io.on('connection', function (socket) {
 
     socket.on('playerDeath', function (data) {
         console.log(`playerDied ${socket.id}`);
+        console.log(`player was killed by ${data.killerPlayerId}`)
+        scores[data.killerPlayerId] += 1;
         io.emit('playerDied', players[data.killedPlayerId]);
         delete players[data.killedPlayerId];
-        //delete players[socket.id];
-        //io.emit('disconnect', socket.id);
+        if(Object.keys(players).length === 1){
+            console.log(`count of players ${Object.keys(players).length}`)
+            io.emit('gameOver', scores[data.killerPlayerId], scores[socket.id]);
+        }
     });
 });
 
