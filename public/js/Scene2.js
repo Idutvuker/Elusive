@@ -7,27 +7,53 @@ class MainScene extends Phaser.Scene {
     }
 
     create() {
-        const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
-        const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
+        this.setBackground();
+        this.setControlKeys();
+        this.setPhysicalObjectGroups();
+        this.setSocketEvents();
+    }
+
+    update(time){
+        this.playerControl(time);
+        return 0
+    }
+
+    setBackground(){
         this.background = this.add.image(0, 0, "background");
         this.background.setOrigin(0, 0);
+    }
+
+    setControlKeys(){
         this.cursorKeys = this.input.keyboard.createCursorKeys();
         this.spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+    }
+
+    setPhysicalObjectGroups(){
         this.bullets = this.physics.add.group({
             classType: Bullet,
             maxSize: 200,
             collideWorldBounds: true
         });
-
-        var self = this;
-        this.socket = io();
         this.otherPlayers = this.physics.add.group();
+    }
+
+    setSocketEvents(){
+        this.socket = io();
+        var self = this;
+        const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
+        const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
+        this.socket.on('loading', function () {
+            this.loadingText = self.add.text(screenCenterX, screenCenterY - 50, 'LOADING...', { fontSize: '40px', fill: '#faf8f8' }).setOrigin(0.5);
+        });
         this.socket.on('currentPlayers', function (players) {
+            if(this.loadingText !== undefined){
+                this.loadingText.destroy();
+            }
             Object.keys(players).forEach(function (id) {
                 if (players[id].playerId === self.socket.id) {
-                    addPlayer(self, players[id]);
+                    self.addPlayer(players[id]);
                 } else {
-                    addOtherPlayers(self, players[id]);
+                    self.addOtherPlayers(players[id]);
                 }
             });
             self.physics.add.overlap(self.bullets, self.otherPlayers, self.hitEnemy, null, self);
@@ -53,7 +79,7 @@ class MainScene extends Phaser.Scene {
         this.socket.on('playerShot', function (playerInfo) {
             if (self.scene.isPaused())
                 return;
-                
+
             self.otherPlayers.getChildren().forEach(function (otherPlayer) {
                 if (playerInfo.playerId === otherPlayer.playerId) {
                     var bullet = self.bullets.get();
@@ -74,13 +100,25 @@ class MainScene extends Phaser.Scene {
                     otherPlayer.destroy();
                 }
             });
-            if (self.ship.playerId === playerInfo.playerId){
+            if (self.ship.playerId !== undefined && self.ship.playerId === playerInfo.playerId){
                 console.log('me :(');
                 self.ship.destroy();
                 self.ship = undefined;
                 this.diedText = self.add.text(screenCenterX, screenCenterY, 'YOU DIED', { fontSize: '40px', fill: '#ff001e' }).setOrigin(0.5);
                 //self.scene.pause();
             }
+        });
+        this.socket.on('nextRound', function (players, roundNumber) {
+            if (this.diedText !== undefined){
+                this.diedText.destroy();
+            }
+            self.otherPlayers.clear(true);
+            if(self.ship !== undefined){
+                self.ship.destroy();
+                self.ship = undefined;
+            }
+            self.nextRoundText = self.add.text(screenCenterX, screenCenterY, `ROUND ${roundNumber}`, { fontSize: '40px', fill: '#faf8f8' }).setOrigin(0.5);
+            var timer = self.time.delayedCall(1000, self.deleteRoundText, [players], self);
         });
         this.socket.on('gameOver', function (winnerScore, currentPlayerScore) {
             if (this.diedText !== undefined){
@@ -91,15 +129,25 @@ class MainScene extends Phaser.Scene {
             this.currentPlayerText = self.add.text(screenCenterX, screenCenterY, `YOUR SCORE: ${currentPlayerScore}`, { fontSize: '40px', fill: '#faf8f8' }).setOrigin(0.5);
             this.backToMainMenuButton = self.add.text(screenCenterX, screenCenterY + 50, 'Back to main menu', { fontSize: '40px', fill: '#faf8f8' }).setOrigin(0.5)
                 .setInteractive()
-                .on('pointerdown', () => actionOnClick() );
+                .on('pointerdown', () => self.actionOnClick() );
         });
     }
 
-    update(time, delta) {
-        this.playerControl(time, delta);
+    deleteRoundText(players){
+        var self = this;
+        this.nextRoundText.destroy();
+        Object.keys(players).forEach(function (id) {
+            if (players[id].playerId === self.socket.id) {
+                self.addPlayer(players[id]);
+            } else {
+                self.addOtherPlayers(players[id]);
+            }
+        });
+        this.physics.add.overlap(this.bullets, this.otherPlayers, this.hitEnemy, null, this);
+        return 0
     }
 
-    playerControl(time, delta) {
+    playerControl(time) {
         if (this.ship !== undefined) {
             console.log(`This.ship: ${this.ship}`)
             this.physics.velocityFromRotation(this.ship.rotation, 200, this.ship.body.acceleration);
@@ -110,6 +158,7 @@ class MainScene extends Phaser.Scene {
             } else {
                 this.ship.setAngularVelocity(0);
             }
+
             // emit player movement
             var x = this.ship.x;
             var y = this.ship.y;
@@ -124,18 +173,18 @@ class MainScene extends Phaser.Scene {
                 y: this.ship.y,
                 rotation: this.ship.rotation
             };
-        }
 
-        if (this.spacebar.isDown && time > lastFired){
-            var bullet = this.bullets.get();
+            if (this.spacebar.isDown && time > lastFired){
+                var bullet = this.bullets.get();
 
-            if (bullet)
-            {
-                this.socket.emit('playerShooting', {});
-                bullet.fire(this.ship);
-                bullet.play("beam_anim");
+                if (bullet)
+                {
+                    this.socket.emit('playerShooting', {});
+                    bullet.fire(this.ship);
+                    bullet.play("beam_anim");
 
-                lastFired = time + 100;
+                    lastFired = time + 100;
+                }
             }
         }
     }
@@ -153,32 +202,32 @@ class MainScene extends Phaser.Scene {
             this.socket.emit('playerDeath', {killedPlayerId: enemy.playerId, killerPlayerId: bullet.owner.playerId});
         }
     }
-}
 
-function addPlayer(self, playerInfo) {
-    self.ship = self.physics.add.sprite(playerInfo.x, playerInfo.y, 'ship1').setDepth(2);
-    self.ship.setTint(playerInfo.color);
-    self.ship.setScale(2);
-    self.ship.setCollideWorldBounds(true);
-    self.ship.setDrag(100);
-    self.ship.setAngularDrag(100);
-    self.ship.setMaxVelocity(200);
-    self.ship.play("ship1_anim");
-    
-    self.ship.playerId = playerInfo.playerId;
-}
+    addPlayer(playerInfo) {
+        this.ship = this.physics.add.sprite(playerInfo.x, playerInfo.y, 'ship1').setDepth(2);
+        this.ship.setTint(playerInfo.color);
+        this.ship.setScale(2);
+        this.ship.setCollideWorldBounds(true);
+        this.ship.setDrag(100);
+        this.ship.setAngularDrag(100);
+        this.ship.setMaxVelocity(200);
+        this.ship.play("ship1_anim");
 
-function addOtherPlayers(self, playerInfo) {
-    const otherPlayer = self.physics.add.sprite(playerInfo.x, playerInfo.y, 'ship1').setDepth(2);
-    otherPlayer.setTint(playerInfo.color);
-    otherPlayer.setScale(2);
-    otherPlayer.rotation = playerInfo.rotation;
-    otherPlayer.playerId = playerInfo.playerId;
-    otherPlayer.play("ship1_anim");
-    self.otherPlayers.add(otherPlayer);
-    
-}
+        this.ship.playerId = playerInfo.playerId;
+    }
 
-function actionOnClick() {
-    window.open("https://yandex.ru")
+    addOtherPlayers(playerInfo) {
+        const otherPlayer = this.physics.add.sprite(playerInfo.x, playerInfo.y, 'ship1').setDepth(2);
+        otherPlayer.setTint(playerInfo.color);
+        otherPlayer.setScale(2);
+        otherPlayer.rotation = playerInfo.rotation;
+        otherPlayer.playerId = playerInfo.playerId;
+        otherPlayer.play("ship1_anim");
+        this.otherPlayers.add(otherPlayer);
+
+    }
+
+    actionOnClick() {
+        window.open("https://yandex.ru")
+    }
 }

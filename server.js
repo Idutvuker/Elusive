@@ -9,6 +9,9 @@ var colors = [0xFF0000, 0x0000FF, 0x00FF00, 0xFFFF00];
 var winnerCondition = 8;
 var countOfPlayers = 3;
 var currentPlayersCount = 0;
+var notKilledPLayers = 0;
+var gameOverFlag = false;
+var roundNumber = 1;
 
 app.use(express.static(__dirname + '/public'));
 
@@ -17,10 +20,13 @@ app.get('/', function (req, res) {
 });
 
 io.on('connection', function (socket) {
+
     console.log(`${socket.id} connected`);
 
+    currentPlayersCount += 1;
     var index = Math.floor(Math.random() * colors.length);
     var color = colors[index];
+
     scores[socket.id] = 0;
     players[socket.id] = {
         rotation: 0,
@@ -29,10 +35,12 @@ io.on('connection', function (socket) {
         playerId: socket.id,
         color: color
     };
-    currentPlayersCount += 1;
+
+    socket.emit('loading');
 
     if (currentPlayersCount === countOfPlayers){
         console.log(`count of players ${currentPlayersCount}`)
+        notKilledPLayers = currentPlayersCount;
         io.emit('currentPlayers', players);
         socket.broadcast.emit('newPlayer', players[socket.id]);
     }
@@ -62,11 +70,21 @@ io.on('connection', function (socket) {
         console.log(`playerDied ${socket.id}`);
         console.log(`player was killed by ${data.killerPlayerId}`)
         scores[data.killerPlayerId] += 1;
+        notKilledPLayers -= 1;
+        if (scores[data.killerPlayerId] >= winnerCondition){
+            gameOverFlag = true;
+        }
         io.emit('playerDied', players[data.killedPlayerId]);
-        delete players[data.killedPlayerId];
-        if(Object.keys(players).length === 1){
-            console.log(`count of players ${Object.keys(players).length}`)
-            io.emit('gameOver', scores[data.killerPlayerId], scores[socket.id]);
+        //delete players[data.killedPlayerId];
+        console.log(`count of not killed players ${notKilledPLayers}`)
+        if(notKilledPLayers === 1){
+            if(gameOverFlag){
+                io.emit('gameOver', scores[data.killerPlayerId], scores[socket.id]);
+            }else{
+                roundNumber += 1;
+                notKilledPLayers = countOfPlayers;
+                io.emit('nextRound', players, roundNumber);
+            }
         }
     });
 });
