@@ -23,6 +23,32 @@ class MainScene extends Phaser.Scene {
         this.background.setOrigin(0, 0);
     }
 
+    setMap(mapTitle){
+        this.map = this.physics.add.staticGroup();
+        switch(mapTitle) {
+            case 'corners':
+                for (let i = 0; i < 4; i++) {
+                    let x = 200;
+                    let y = 200;
+                    if(0 < i && i < 3){
+                        x = 600;
+                    }
+                    if(i > 1){
+                        y = 400;
+                    }
+                    const horizontalRectangle = this.physics.add.staticSprite(x, y, 'rectangle_h').setDepth(2);
+                    const verticalRectangle = this.physics.add.staticSprite(x, y, 'rectangle_v').setDepth(2);
+                    this.map.add(horizontalRectangle);
+                    this.map.add(verticalRectangle);
+                }
+                break;
+            case 'angle':
+                break;
+            default:
+                break;
+        }
+    }
+
     setControlKeys(){
         this.cursorKeys = this.input.keyboard.createCursorKeys();
         this.spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
@@ -42,7 +68,8 @@ class MainScene extends Phaser.Scene {
         var self = this;
         const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
         const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
-        this.socket.on('loading', function () {
+        this.socket.on('loading', function (mapTitle) {
+            self.setMap(mapTitle);
             this.loadingText = self.add.text(screenCenterX, screenCenterY - 50, 'LOADING...', { fontSize: '40px', fill: '#faf8f8' }).setOrigin(0.5);
         });
         this.socket.on('currentPlayers', function (players) {
@@ -57,9 +84,12 @@ class MainScene extends Phaser.Scene {
                 }
             });
             self.physics.add.overlap(self.bullets, self.otherPlayers, self.hitEnemy, null, self);
+            self.physics.add.overlap(self.bullets, self.map, self.hideBullet, null, self);
+            self.physics.add.collider(self.otherPlayers, self.map);
+            self.physics.add.collider(self.ship, self.map);
         });
         this.socket.on('newPlayer', function (playerInfo) {
-            addOtherPlayers(self, playerInfo);
+            self.addOtherPlayers(playerInfo);
         });
         this.socket.on('disconnect', function (playerId) {
             self.otherPlayers.getChildren().forEach(function (otherPlayer) {
@@ -144,6 +174,9 @@ class MainScene extends Phaser.Scene {
             }
         });
         this.physics.add.overlap(this.bullets, this.otherPlayers, this.hitEnemy, null, this);
+        self.physics.add.overlap(self.bullets, self.map, self.hideBullet, null, self);
+        self.physics.add.collider(self.otherPlayers, self.map);
+        self.physics.add.collider(self.ship, self.map);
         return 0
     }
 
@@ -201,6 +234,15 @@ class MainScene extends Phaser.Scene {
             bullet.destroy();
             this.socket.emit('playerDeath', {killedPlayerId: enemy.playerId, killerPlayerId: bullet.owner.playerId});
         }
+    }
+
+    hideBullet(bullet, map){
+        bullet.setActive(false);
+        bullet.setVisible(false);
+        if(bullet.body !== undefined){
+            bullet.body.stop();
+        }
+        bullet.destroy();
     }
 
     addPlayer(playerInfo) {

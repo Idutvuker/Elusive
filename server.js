@@ -7,6 +7,7 @@ var players = {};
 var scores = {};
 var colors = [0xFF0000, 0x0000FF, 0x00FF00, 0xFFFF00];
 var winnerCondition = 8;
+var mapTitle = "corners"
 var countOfPlayers = 3;
 var currentPlayersCount = 0;
 var notKilledPLayers = 0;
@@ -36,7 +37,7 @@ io.on('connection', function (socket) {
         color: color
     };
 
-    socket.emit('loading');
+    socket.emit('loading', mapTitle);
 
     if (currentPlayersCount === countOfPlayers){
         console.log(`count of players ${currentPlayersCount}`)
@@ -89,6 +90,6 @@ io.on('connection', function (socket) {
     });
 });
 
-server.listen(process.env.PORT || 3000, function () {
+server.listen(process.env.PORT || 3003, function () {
     console.log(`Listening on ${server.address().port}`);
 });
