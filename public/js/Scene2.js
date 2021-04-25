@@ -43,6 +43,26 @@ class MainScene extends Phaser.Scene {
                 }
                 break;
             case 'angle':
+                for (let i = 0; i < 4; i++) {
+                    let x = 200;
+                    let y = 200;
+                    let deltaX = 60;
+                    let deltaY = -60;
+
+                    if(0 < i && i < 3){
+                        x = 600;
+                        deltaX = -60;
+                    }
+
+                    if(i > 1){
+                        y = 400;
+                        deltaY = 60;
+                    }
+                    const horizontalRectangle = this.physics.add.staticSprite(x + deltaX, y + deltaY, 'rectangle_h').setDepth(2);
+                    const verticalRectangle = this.physics.add.staticSprite(x, y, 'rectangle_v').setDepth(2);
+                    this.map.add(horizontalRectangle);
+                    this.map.add(verticalRectangle);
+                }
                 break;
             default:
                 break;
