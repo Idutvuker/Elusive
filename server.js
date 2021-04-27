@@ -3,16 +3,33 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
-var players = {};
-var scores = {};
-var colors = [0xFF0000, 0x0000FF, 0x00FF00, 0xFFFF00];
-var winnerCondition = 8;
-var mapTitle = "angle"
-var countOfPlayers = 3;
-var currentPlayersCount = 0;
-var notKilledPLayers = 0;
-var gameOverFlag = false;
-var roundNumber = 1;
+const players = {};
+const scores = {};
+const winnerCondition = 8;
+const mapTitle = "crosses";
+const countOfPlayers = 3;
+let currentPlayersCount = 0;
+let notKilledPLayers = 0;
+let gameOverFlag = false;
+let roundNumber = 1;
+const playerCoordinates = [
+    {
+        x: Math.floor(Math.random() * 200),
+        y: Math.floor(Math.random() * 200),
+    },
+    {
+        x: Math.floor(Math.random() * 200) + 600,
+        y: Math.floor(Math.random() * 200),
+    },
+    {
+        x: Math.floor(Math.random() * 200) + 600,
+        y: Math.floor(Math.random() * 200) + 600,
+    },
+    {
+        x: Math.floor(Math.random() * 200),
+        y: Math.floor(Math.random() * 200) + 600,
+    }
+]
 
 app.use(express.static(__dirname + '/public'));
 
@@ -25,16 +42,15 @@ io.on('connection', function (socket) {
     console.log(`${socket.id} connected`);
 
     currentPlayersCount += 1;
-    var index = Math.floor(Math.random() * colors.length);
-    var color = colors[index];
 
     scores[socket.id] = 0;
     players[socket.id] = {
         rotation: 0,
-        x: Math.floor(Math.random() * 700) + 50,
-        y: Math.floor(Math.random() * 500) + 50,
-        playerId: socket.id,
-        color: color
+        x: playerCoordinates[currentPlayersCount - 1].x,
+        y: playerCoordinates[currentPlayersCount - 1].y,
+        startX: playerCoordinates[currentPlayersCount - 1].x,
+        startY: playerCoordinates[currentPlayersCount - 1].y,
+        playerId: socket.id
     };
 
     socket.emit('loading', mapTitle);
@@ -84,6 +100,10 @@ io.on('connection', function (socket) {
             }else{
                 roundNumber += 1;
                 notKilledPLayers = countOfPlayers;
+                Object.values(players).forEach(player => {
+                    player.x = player.startX;
+                    player.y = player.startY;
+                });
                 io.emit('nextRound', players, roundNumber);
             }
         }

@@ -1,4 +1,43 @@
-var lastFired = 0;
+let lastFired = 0;
+const maps = {
+    "crosses": {
+        "rectangle_h": [
+            {'x': 200, 'y': 200},
+            {'x': 600, 'y': 200},
+            {'x': 600, 'y': 400},
+            {'x': 200, 'y': 400},
+        ],
+        "rectangle_v": [
+            {'x': 200, 'y': 200},
+            {'x': 600, 'y': 200},
+            {'x': 600, 'y': 400},
+            {'x': 200, 'y': 400},
+        ]
+    },
+    "corners": {
+        "rectangle_h": [
+            {'x': 260, 'y': 140},
+            {'x': 540, 'y': 140},
+            {'x': 540, 'y': 460},
+            {'x': 260, 'y': 460},
+        ],
+        "rectangle_v": [
+            {'x': 200, 'y': 200},
+            {'x': 600, 'y': 200},
+            {'x': 600, 'y': 400},
+            {'x': 200, 'y': 400},
+        ]
+    }
+};
+const currentPlayerColor = 0x0000FF;
+const otherPlayerColor = 0xFF0000;
+const maxBulletsCount = 200;
+const playerSpriteScale = 2;
+const currentPlayerDrag = 100;
+const currentPlayerAngularDrag = 100;
+const currentPlayerMaxVelocity = 200;
+const nextRoundTitleDelay = 1000;
+const spacerSize = 50;
 
 class MainScene extends Phaser.Scene {
 
@@ -25,48 +64,12 @@ class MainScene extends Phaser.Scene {
 
     setMap(mapTitle){
         this.map = this.physics.add.staticGroup();
-        switch(mapTitle) {
-            case 'corners':
-                for (let i = 0; i < 4; i++) {
-                    let x = 200;
-                    let y = 200;
-                    if(0 < i && i < 3){
-                        x = 600;
-                    }
-                    if(i > 1){
-                        y = 400;
-                    }
-                    const horizontalRectangle = this.physics.add.staticSprite(x, y, 'rectangle_h').setDepth(2);
-                    const verticalRectangle = this.physics.add.staticSprite(x, y, 'rectangle_v').setDepth(2);
-                    this.map.add(horizontalRectangle);
-                    this.map.add(verticalRectangle);
-                }
-                break;
-            case 'angle':
-                for (let i = 0; i < 4; i++) {
-                    let x = 200;
-                    let y = 200;
-                    let deltaX = 60;
-                    let deltaY = -60;
-
-                    if(0 < i && i < 3){
-                        x = 600;
-                        deltaX = -60;
-                    }
-
-                    if(i > 1){
-                        y = 400;
-                        deltaY = 60;
-                    }
-                    const horizontalRectangle = this.physics.add.staticSprite(x + deltaX, y + deltaY, 'rectangle_h').setDepth(2);
-                    const verticalRectangle = this.physics.add.staticSprite(x, y, 'rectangle_v').setDepth(2);
-                    this.map.add(horizontalRectangle);
-                    this.map.add(verticalRectangle);
-                }
-                break;
-            default:
-                break;
-        }
+        Object.entries(maps[mapTitle]).forEach(([objectTitle, coordinates]) => {
+            for (let i = 0; i < coordinates.length; i++) {
+                const object = this.physics.add.staticSprite(coordinates[i].x, coordinates[i].y, objectTitle).setDepth(2);
+                this.map.add(object);
+            }
+        });
     }
 
     setControlKeys(){
@@ -77,7 +80,7 @@ class MainScene extends Phaser.Scene {
     setPhysicalObjectGroups(){
         this.bullets = this.physics.add.group({
             classType: Bullet,
-            maxSize: 200,
+            maxSize: maxBulletsCount,
             collideWorldBounds: true
         });
         this.otherPlayers = this.physics.add.group();
@@ -167,17 +170,17 @@ class MainScene extends Phaser.Scene {
                 self.ship.destroy();
                 self.ship = undefined;
             }
-            self.nextRoundText = self.add.text(screenCenterX, screenCenterY, `ROUND ${roundNumber}`, { fontSize: '40px', fill: '#faf8f8' }).setOrigin(0.5);
-            var timer = self.time.delayedCall(1000, self.deleteRoundText, [players], self);
+            self.nextRoundText = self.add.text(screenCenterX, screenCenterY, `ROUND ${roundNumber}`, { fontSize: '40px', fill: '#faf8f8' }).setOrigin(0.5).setDepth(3);
+            var timer = self.time.delayedCall(nextRoundTitleDelay, self.deleteRoundText, [players], self);
         });
         this.socket.on('gameOver', function (winnerScore, currentPlayerScore) {
             if (this.diedText !== undefined){
                 this.diedText.destroy();
             }
             console.log(`winner score: ${winnerScore}`);
-            this.winnerText = self.add.text(screenCenterX, screenCenterY - 50, `WINNER SCORE: ${winnerScore}`, { fontSize: '40px', fill: '#faf8f8' }).setOrigin(0.5);
-            this.currentPlayerText = self.add.text(screenCenterX, screenCenterY, `YOUR SCORE: ${currentPlayerScore}`, { fontSize: '40px', fill: '#faf8f8' }).setOrigin(0.5);
-            this.backToMainMenuButton = self.add.text(screenCenterX, screenCenterY + 50, 'Back to main menu', { fontSize: '40px', fill: '#faf8f8' }).setOrigin(0.5)
+            this.winnerText = self.add.text(screenCenterX, screenCenterY - spacerSize, `WINNER SCORE: ${winnerScore}`, { fontSize: '40px', fill: '#faf8f8' }).setOrigin(0.5).setDepth(3);
+            this.currentPlayerText = self.add.text(screenCenterX, screenCenterY, `YOUR SCORE: ${currentPlayerScore}`, { fontSize: '40px', fill: '#faf8f8' }).setOrigin(0.5).setDepth(3);
+            this.backToMainMenuButton = self.add.text(screenCenterX, screenCenterY + spacerSize, 'Back to main menu', { fontSize: '40px', fill: '#faf8f8' }).setOrigin(0.5).setDepth(3)
                 .setInteractive()
                 .on('pointerdown', () => self.actionOnClick() );
         });
@@ -266,22 +269,24 @@ class MainScene extends Phaser.Scene {
     }
 
     addPlayer(playerInfo) {
+        console.log(`MainPlayer(x: ${playerInfo.x} y: ${playerInfo.y})`)
         this.ship = this.physics.add.sprite(playerInfo.x, playerInfo.y, 'ship1').setDepth(2);
-        this.ship.setTint(playerInfo.color);
-        this.ship.setScale(2);
+        this.ship.setTint(currentPlayerColor);
+        this.ship.setScale(playerSpriteScale);
         this.ship.setCollideWorldBounds(true);
-        this.ship.setDrag(100);
-        this.ship.setAngularDrag(100);
-        this.ship.setMaxVelocity(200);
+        this.ship.setDrag(currentPlayerDrag);
+        this.ship.setAngularDrag(currentPlayerAngularDrag);
+        this.ship.setMaxVelocity(currentPlayerMaxVelocity);
         this.ship.play("ship1_anim");
 
         this.ship.playerId = playerInfo.playerId;
     }
 
     addOtherPlayers(playerInfo) {
+        console.log(`OtherPlayer(x: ${playerInfo.x} y: ${playerInfo.y})`)
         const otherPlayer = this.physics.add.sprite(playerInfo.x, playerInfo.y, 'ship1').setDepth(2);
-        otherPlayer.setTint(playerInfo.color);
-        otherPlayer.setScale(2);
+        otherPlayer.setTint(otherPlayerColor);
+        otherPlayer.setScale(playerSpriteScale);
         otherPlayer.rotation = playerInfo.rotation;
         otherPlayer.playerId = playerInfo.playerId;
         otherPlayer.play("ship1_anim");
