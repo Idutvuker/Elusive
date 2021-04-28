@@ -23,31 +23,31 @@
         <h2 class="subtitle">CREATE NEW GAME</h2>
         <form class="formGameCreation" action="/TODO">
             <div class="customizationContainer">
-                <label for="countOfPlayers" class="customizationTitle">COUNT OF PLAYERS</label>
-                <select name="countOfPlayers" id="countOfPlayers">
-                    <option value="volvo">1</option>
-                    <option value="saab">2</option>
-                    <option value="opel">3</option>
-                    <option value="audi">4</option>
+                <label for="numOfPlayers" class="customizationTitle">NUMBER OF PLAYERS</label>
+                <select name="numOfPlayers" id="numOfPlayers">
+                    <option value=1>1</option>
+                    <option value=2>2</option>
+                    <option value=3>3</option>
+                    <option value=4>4</option>
                 </select>
             </div>
             <br><br>
             <div class="customizationContainer">
-                <label for="gamesMode" class="customizationTitle">GAME'S MODE</label>
-                <select name="gamesMode" id="gamesMode">
-                    <option value="volvo">Mode 1</option>
-                    <option value="saab">Mode 2</option>
-                    <option value="opel">Mode 3</option>
-                    <option value="audi">Mode 4</option>
+                <label for="gameMode" class="customizationTitle">GAME MODE</label>
+                <select name="gameMode" id="gameMode">
+                    <option value=1>Mode 1</option>
+                    <option value=2>Mode 2</option>
+                    <option value=3>Mode 3</option>
+                    <option value=4>Mode 4</option>
                 </select>
             </div>
             <br><br>
             <div class="customizationContainer">
-                <label for="winnerDefinition" class="customizationTitle">WINNER DEFINITION</label>
-                <select name="winnerDefinition" id="winnerDefinition">
-                    <option value="volvo">4 kills</option>
-                    <option value="saab">8 kills</option>
-                    <option value="opel">12 kills</option>
+                <label for="scoreLimit" class="customizationTitle">SCORE LIMIT</label>
+                <select name="scoreLimit" id="scoreLimit">
+                    <option value=4>4 kills</option>
+                    <option value=8>8 kills</option>
+                    <option value=12>12 kills</option>
                 </select>
             </div>
             <br><br>
@@ -61,12 +61,44 @@
                 </select>
             </div>
             <br><br>
-            <input type="submit" value="CREATE" id="create">
         </form>
+
+        <button id="create" onclick="createGame()">CREATE</button>
+
     </div>
 </div>
 </body>
 <footer>
     <script type="text/javascript" src="js/filter.js"></script>
 </footer>
+
+<script>
+    async function createGame() {
+        const playerNumber = parseInt(document.getElementById('numOfPlayers').value);
+        const gameMode = parseInt(document.getElementById('gameMode').value);
+        const scoreLimit = parseInt(document.getElementById('scoreLimit').value);
+        const level = document.getElementById('level').value;
+
+        const gameData = {playerNumber, gameMode, scoreLimit, level};
+
+        const result = await fetch('/api/create-game', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                token: localStorage.getItem('token'),
+                gameData
+            })
+        }).then((res) => res.json());
+
+        if (result.status === 'ok') {
+            alert(`Game created. ID: ${result.gameID}`);
+        } else {
+            alert(result.error);
+            window.location.href = "login.html";
+        }
+    }
+</script>
+
 </html>
