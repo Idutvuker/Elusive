@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Sign in</title>
+</head>
+<body>
+
+<h1 class="title" id="gameTitle">ELUSIVE BOYS</h1>
+
+<div class="main">
+    <h2 class="sign">Sign in</h2>
+    <form class="formSignIn">
+        <input id="loginUsername" class="username" type="text" placeholder="Username">
+        <input id="loginPassword" class="password" type="password" placeholder="Password">
+    </form>
+
+    <a role="button" class="button" id="submit" target="_self" onclick="loginSubmit()">Sign in</a>
+
+    <button id="mySignUp" class="signUp">Sign up</button>
+</div>
+
+<!-- The Modal -->
+<div id="myModal" class="modal">
+
+    <!-- Modal content -->
+    <div class="modal-content">
+        <form class="formSignUp">
+            <input id="registerEmail" class="email" type="email" placeholder="Email">
+            <input id="registerUsername" class="username" type="text" placeholder="Username">
+            <input id="registerPassword" class="password" type="password" placeholder="Password">
+            <input id="registerRepeatPassword" class="password" type="password" placeholder="Repeat password">
+        </form>
+        <div class="buttonsContainer">
+            <button class="button" id="cancel">Cancel</button>
+            <button class="button" id="done" onclick="registerSubmit()">Done</button>
+        </div>
+    </div>
+</div>
+</body>
+<footer>
+    <script type="text/javascript" src="js/modal.js"></script>
+</footer>
+
+
+<script>
+    async function loginSubmit() {
+        const username = document.getElementById('loginUsername').value;
+        const password = document.getElementById('loginPassword').value;
+
+        const result = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username,
+                password
+            })
+        }).then((res) => res.json());
+
+        if (result.status === 'ok') {
+            localStorage.setItem('token', result.token);
+            alert('Success');
+            location.href = "main_menu.html"
+        } else {
+            alert(result.error);
+        }
+    }
+
+    function checkInputs(email, username, password, password_check) {
+        const MIN_LENGTH = 3;
+
+        if (email.length < MIN_LENGTH) {
+            alert(`Email should be at least ${MIN_LENGTH} letters long`);
+            return false;
+        }
+
+        if (username.length < MIN_LENGTH) {
+            alert(`Username should be at least ${MIN_LENGTH} letters long`);
+            return false;
+        }
+
+        if (password.length < MIN_LENGTH) {
+            alert(`Password should be at least ${MIN_LENGTH} letters long`);
+            return false;
+        }
+
+        if (password !== password_check) {
+            alert("Passwords do not match!");
+            return false;
+        }
+
+        return true
+    }
+
+    async function registerSubmit() {
+        const email = document.getElementById('registerEmail').value;
+        const username = document.getElementById('registerUsername').value;
+        const password = document.getElementById('registerPassword').value;
+        const password_check = document.getElementById('registerRepeatPassword').value;
+
+        if (!checkInputs(email, username, password, password_check))
+            return;
+
+        const result = await fetch('/api/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email,
+                username,
+                password
+            })
+        }).then((res) => res.json());
+
+        if (result.status === 'ok') {
+            localStorage.setItem('token', result.data);
+            alert('Success');
+            modal.style.display = "none";
+        } else {
+            alert(result.error);
+        }
+    }
+
+</script>
+
+</html>

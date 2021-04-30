@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Main menu</title>
+</head>
+<body>
+
+<header>
+    <div class="loginInfoBox">
+        <p class="myText loginInfo" id="loginInfo"></p>
+        <button id="loginInfoButton" style="display: inline-block"></button>
+    </div>
+</header>
+
+<div class="row">
+<!--    <div class="column" id="games">-->
+<!--        <input type="search" class="un" id="search" onkeyup="filterList()">-->
+<!--        <ul id="gamesList">-->
+<!--            <li><a href="#" class="gameRef">Game 1</a></li>-->
+<!--            <li><a href="#" class="gameRef">Game 2</a></li>-->
+<!--            <li><a href="#" class="gameRef">Game 3</a></li>-->
+<!--            <li><a href="#" class="gameRef">Game 4</a></li>-->
+<!--        </ul>-->
+<!--    </div>-->
+    <div class="column" id="gameCreation">
+        <h1 class="title" id="Menu">MENU</h1>
+        <h2 class="subtitle">CREATE NEW GAME</h2>
+        <form class="formGameCreation" action="/TODO">
+            <div class="customizationContainer">
+                <label for="numOfPlayers" class="customizationTitle">Number of players</label>
+                <select name="numOfPlayers" id="numOfPlayers">
+                    <option value=1>1</option>
+                    <option value=2>2</option>
+                    <option value=3>3</option>
+                    <option value=4>4</option>
+                </select>
+            </div>
+            <br><br>
+            <div class="customizationContainer">
+                <label for="gameMode" class="customizationTitle">GAME MODE</label>
+                <select name="gameMode" id="gameMode">
+                    <option value=1>Mode 1</option>
+                    <option value=2>Mode 2</option>
+                    <option value=3>Mode 3</option>
+                    <option value=4>Mode 4</option>
+                </select>
+            </div>
+            <br><br>
+            <div class="customizationContainer">
+                <label for="scoreLimit" class="customizationTitle">SCORE LIMIT</label>
+                <select name="scoreLimit" id="scoreLimit">
+                    <option value=4>4 kills</option>
+                    <option value=8>8 kills</option>
+                    <option value=12>12 kills</option>
+                </select>
+            </div>
+            <br><br>
+            <div class="customizationContainer">
+                <label for="level" class="customizationTitle">LEVEL</label>
+                <select name="level" id="level">
+                    <option value="volvo">Volvo</option>
+                    <option value="saab">Saab</option>
+                    <option value="opel">Opel</option>
+                    <option value="audi">Audi</option>
+                </select>
+            </div>
+            <br><br>
+        </form>
+
+        <button id="create" onclick="createGame()">CREATE</button>
+
+    </div>
+</div>
+</body>
+<footer>
+    <script type="text/javascript" src="js/filter.js"></script>
+</footer>
+
+<script>
+    let userData = null;
+
+    fillLoginInfo();
+
+    async function fillLoginInfo() {
+        const loginInfo = document.getElementById('loginInfo');
+        const loginInfoButton = document.getElementById('loginInfoButton');
+
+        const result = await fetch('/api/authorize', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                token: localStorage.getItem('token'),
+            })
+        }).then((res) => res.json());
+
+        if (result.status === 'ok') {
+            userData = result.userData;
+            loginInfo.innerText = userData.username;
+            loginInfoButton.innerText = "Logout";
+            loginInfoButton.onclick = function() {localStorage.removeItem('token'); location.reload()};
+        } else {
+            loginInfo.innerText = "Not logged in";
+            loginInfoButton.innerText = "Login";
+            loginInfoButton.onclick = function() {location.href = "login.html";};
+        }
+    }
+
+    async function createGame() {
+        const playerNumber = parseInt(document.getElementById('numOfPlayers').value);
+        const gameMode = parseInt(document.getElementById('gameMode').value);
+        const scoreLimit = parseInt(document.getElementById('scoreLimit').value);
+        const level = document.getElementById('level').value;
+
+        const gameData = {playerNumber, gameMode, scoreLimit, level};
+
+        const result = await fetch('/api/create-game', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                token: localStorage.getItem('token'),
+                gameData
+            })
+        }).then((res) => res.json());
+
+        if (result.status === 'ok') {
+            alert(`Game created. ID: ${result.gameID}`);
+        } else {
+            alert(result.error);
+            window.location.href = "login.html";
+        }
+    }
+
+
+</script>
+
+</html>
