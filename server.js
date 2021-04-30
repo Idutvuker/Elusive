@@ -55,7 +55,7 @@ io.on('connection', function (socket) {
 
     socket.emit('loading', mapTitle);
 
-    if (currentPlayersCount === countOfPlayers){
+    if (currentPlayersCount === countOfPlayers) {
         console.log(`count of players ${currentPlayersCount}`)
         notKilledPLayers = currentPlayersCount;
         io.emit('currentPlayers', players);
@@ -71,7 +71,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on('playerMovement', function (movementData) {
-        if(players[socket.id]){
+        if (players[socket.id]) {
             players[socket.id].x = movementData.x;
             players[socket.id].y = movementData.y;
             players[socket.id].rotation = movementData.rotation;
@@ -84,20 +84,20 @@ io.on('connection', function (socket) {
     });
 
     socket.on('playerDeath', function (data) {
-        console.log(`playerDied ${socket.id}`);
-        console.log(`player was killed by ${data.killerPlayerId}`)
+        // console.log(`playerDied ${socket.id}`);
+        //console.log(`player was killed by ${data.killerPlayerId}`)
         scores[data.killerPlayerId] += 1;
         notKilledPLayers -= 1;
-        if (scores[data.killerPlayerId] >= winnerCondition){
+        if (scores[data.killerPlayerId] >= winnerCondition) {
             gameOverFlag = true;
         }
         io.emit('playerDied', players[data.killedPlayerId]);
-        //delete players[data.killedPlayerId];
-        console.log(`count of not killed players ${notKilledPLayers}`)
-        if(notKilledPLayers === 1){
-            if(gameOverFlag){
+
+        // console.log(`count of not killed players ${notKilledPLayers}`)
+        if (notKilledPLayers === 1) {
+            if (gameOverFlag) {
                 io.emit('gameOver', scores[data.killerPlayerId], scores[socket.id]);
-            }else{
+            } else {
                 roundNumber += 1;
                 notKilledPLayers = countOfPlayers;
                 Object.values(players).forEach(player => {
@@ -110,6 +110,6 @@ io.on('connection', function (socket) {
     });
 });
 
-server.listen(process.env.PORT || 3003, function () {
+server.listen(process.env.PORT || 3000, function () {
     console.log(`Listening on ${server.address().port}`);
 });
