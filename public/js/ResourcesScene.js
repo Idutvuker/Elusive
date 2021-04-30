@@ -4,7 +4,7 @@ class Resources extends Phaser.Scene {
     }
 
     preload(){
-        this.load.image("background", "assets/images/background.png");
+        this.load.image("background", "assets/images/canvas_background.png");
         this.load.image("rectangle_h", "assets/images/rectangle_h.png");
         this.load.image("rectangle_v", "assets/images/rectangle_v.png");
         this.load.spritesheet("ship1", "assets/spritesheets/ship.png", {

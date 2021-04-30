@@ -1,4 +1,4 @@
-var config = {
+const config = {
     type: Phaser.AUTO,
     width: 800,
     height: 600,
@@ -13,4 +13,5 @@ var config = {
         }
     },
 }
-var game = new Phaser.Game(config);
+
+const game = new Phaser.Game(config);
