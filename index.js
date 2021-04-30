@@ -22,7 +22,26 @@ app.use(express.urlencoded({extended: true}));
 app.use('/', express.static(__dirname + '/public'));
 
 app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/public/login.html');
+    res.sendFile(__dirname + '/public/main_menu.html');
+});
+
+function verifyToken(token) {
+    try {
+        return jwt.verify(token, JWT_SECRET);
+    } catch (error) {
+        return null;
+    }
+}
+
+app.post('/api/authorize', async (req, res) => {
+    const {token} = req.body;
+    const userData = verifyToken(token);
+
+    if (userData == null) {
+        res.json({status: 'error', error: 'Authorization failed!'});
+    } else {
+        res.json({status: 'ok', userData});
+    }
 });
 
 app.post('/api/login', async (req, res) => {
@@ -76,14 +95,11 @@ app.post('/api/create-game', async (req, res) => {
     console.log(token);
     console.log(gameData);
 
-    try {
-        const user = jwt.verify(token, JWT_SECRET);
-
-        res.json({status: 'ok', gameID: Math.random()});
-
-    } catch (error) {
-        console.log(error);
+    const user = verifyToken(token);
+    if (user == null) {
         res.json({status: 'error', error: 'Authorization failed!'});
+    } else {
+        res.json({status: 'ok', gameID: Math.random()});
     }
 });
 

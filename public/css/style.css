@@ -1,15 +1,28 @@
+@font-face {
+    font-family: arcade;
+    src: url("../assets/fonts/ARCADE_R.TTF");
+}
+
+@font-face {
+    font-family: november;
+    src: url("../assets/fonts/novem___.ttf");
+}
+
+:root {
+  /*--myFont: 'Press Start 2P', sans-serif;*/
+    --myFont: arcade, sans-serif;
+}
+
 body {
     background-color: #F3EBF6;
-    font-family: 'VT323', sans-serif;
     background-image: url(../assets/images/Background.png);
 }
 
 .title{
     color: #E4CFFF;
     -webkit-text-stroke: 2px #BB6BD9;
-    font-family: 'Press Start 2P', sans-serif;
+    font-family: var(--myFont);
     font-weight: bold;
-    font-size: 100px;
     text-align: center;
     vertical-align: top;
     margin: 0;
@@ -21,13 +34,34 @@ body {
 
 .subtitle{
     color: #A661FF;
-    -webkit-text-stroke: 0.5px white;
-    font-family: 'Press Start 2P', sans-serif;
+    -webkit-text-stroke: 1px white;
+    font-family: var(--myFont);
     font-weight: bold;
     font-size: 30px;
     text-align: center;
     vertical-align: top;
     margin: 0;
+}
+
+.myText {
+    color: #A661FF;
+    -webkit-text-stroke: 1px white;
+    font-family: var(--myFont);
+    font-weight: bold;
+}
+
+.loginInfo {
+    font-size: 12pt;
+    margin: 5px;
+}
+
+.loginInfoBox {
+    padding: 5px 10px;
+    display: inline-block;
+    background: #00000055;
+    border: 2px solid white !important;
+    border-radius: 5px;
+    text-align: center;
 }
 
 .main {
@@ -43,8 +77,8 @@ body {
 
 .sign {
     color: #A661FF;
-    -webkit-text-stroke: 0.5px white;
-    font-family: 'Press Start 2P', sans-serif;
+    -webkit-text-stroke: 1px white;
+    font-family: var(--myFont);
     font-weight: bold;
     font-size: 50px;
     text-align: center;
@@ -66,7 +100,7 @@ body {
     text-align: center;
     padding: 10px;
     margin: 5px auto 5px auto;
-    font-family: 'Press Start 2P', sans-serif;
+    font-family: var(--myFont);
 }
 
 .formSignIn{
@@ -90,7 +124,7 @@ body {
     background: #BB6BD9;
     border: 0;
     outline: 0;
-    font-family: 'Press Start 2P', sans-serif;
+    font-family: var(--myFont);
     font-size: 20px;
     color: white;
     display: block;
@@ -109,13 +143,12 @@ body {
 .signUp {
     color: #E1BEE7;
     cursor: pointer;
-    font-family: 'Press Start 2P', sans-serif;
+    font-family: var(--myFont);
     text-align: center;
     position: absolute;
-    bottom: 0px;
-    right: 0px;
-    margin-right: 10px;
-    margin-bottom: 10px;
+    bottom: 0;
+    right: 0;
+    margin: 10px 10px;
     border: 0;
     outline: 0;
     background: transparent;
@@ -127,23 +160,17 @@ a {
     text-decoration: none
 }
 
-@media (max-width: 600px) {
-    .main {
-        border-radius: 0px;
-    }}
 
-/* The Modal (background) */
+
 .modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
+    display: none;
+    position: fixed;
+    z-index: 1;
     left: 0;
     top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
 }
 
 /* Modal Content/Box */
@@ -202,7 +229,6 @@ a {
 
 #gamesList {
     width: 76%;
-    margin: auto;
     color: white;
     font-weight: 700;
     font-size: 30px;
@@ -213,12 +239,10 @@ a {
     box-sizing: border-box;
     border: 4px solid white;
     text-align: center;
-    font-family: 'Press Start 2P', sans-serif;
-    margin-top: 40px;
+    font-family: var(--myFont);
+    margin: 40px auto auto;
     list-style-type: none;
-}:last-child{
-     border-bottom:none;
- }
+}
 
 li{
     color: white;
@@ -254,8 +278,8 @@ li{
 
 .customizationTitle{
     color: #A661FF;
-    -webkit-text-stroke: 0.5px white;
-    font-family: 'Press Start 2P', sans-serif;
+    -webkit-text-stroke: 1px white;
+    font-family: var(--myFont);
     font-weight: bold;
     font-size: 30px;
     text-align: center;
@@ -278,7 +302,7 @@ select {
     text-align: center;
     padding-top: 5px;
     padding-bottom: 5px;
-    font-family: 'Press Start 2P', sans-serif;
+    font-family: var(--myFont);
     margin-left: 20px;
     text-align-last:center;
 }
@@ -302,7 +326,7 @@ select {
     text-align: center;
     padding-top: 5px;
     padding-bottom: 5px;
-    font-family: 'Press Start 2P', sans-serif;
+    font-family: var(--myFont);
 }
 
 #create:hover{

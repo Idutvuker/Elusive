@@ -8,13 +8,9 @@
     <title>Sign in</title>
 </head>
 <body>
-<!-- Game title-->
+
 <h1 class="title" id="gameTitle">ELUSIVE BOYS</h1>
 
-<!-- <input class="pass" type="password" placeholder="Password"> -->
-
-
-<!-- Main sig in view-->
 <div class="main">
     <h2 class="sign">Sign in</h2>
     <form class="formSignIn">
@@ -69,6 +65,7 @@
         if (result.status === 'ok') {
             localStorage.setItem('token', result.token);
             alert('Success');
+            location.href = "main_menu.html"
         } else {
             alert(result.error);
         }

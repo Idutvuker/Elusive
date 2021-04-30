@@ -8,22 +8,30 @@
     <title>Main menu</title>
 </head>
 <body>
-<div class="row">
-    <div class="column" id="games">
-        <input type="search" class="un" id="search" onkeyup="filterList()">
-        <ul id="gamesList">
-            <li><a href="#" class="gameRef">Game 1</a></li>
-            <li><a href="#" class="gameRef">Game 2</a></li>
-            <li><a href="#" class="gameRef">Game 3</a></li>
-            <li><a href="#" class="gameRef">Game 4</a></li>
-        </ul>
+
+<header>
+    <div class="loginInfoBox">
+        <p class="myText loginInfo" id="loginInfo"></p>
+        <button id="loginInfoButton" style="display: inline-block"></button>
     </div>
+</header>
+
+<div class="row">
+<!--    <div class="column" id="games">-->
+<!--        <input type="search" class="un" id="search" onkeyup="filterList()">-->
+<!--        <ul id="gamesList">-->
+<!--            <li><a href="#" class="gameRef">Game 1</a></li>-->
+<!--            <li><a href="#" class="gameRef">Game 2</a></li>-->
+<!--            <li><a href="#" class="gameRef">Game 3</a></li>-->
+<!--            <li><a href="#" class="gameRef">Game 4</a></li>-->
+<!--        </ul>-->
+<!--    </div>-->
     <div class="column" id="gameCreation">
         <h1 class="title" id="Menu">MENU</h1>
         <h2 class="subtitle">CREATE NEW GAME</h2>
         <form class="formGameCreation" action="/TODO">
             <div class="customizationContainer">
-                <label for="numOfPlayers" class="customizationTitle">NUMBER OF PLAYERS</label>
+                <label for="numOfPlayers" class="customizationTitle">Number of players</label>
                 <select name="numOfPlayers" id="numOfPlayers">
                     <option value=1>1</option>
                     <option value=2>2</option>
@@ -73,6 +81,36 @@
 </footer>
 
 <script>
+    let userData = null;
+
+    fillLoginInfo();
+
+    async function fillLoginInfo() {
+        const loginInfo = document.getElementById('loginInfo');
+        const loginInfoButton = document.getElementById('loginInfoButton');
+
+        const result = await fetch('/api/authorize', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                token: localStorage.getItem('token'),
+            })
+        }).then((res) => res.json());
+
+        if (result.status === 'ok') {
+            userData = result.userData;
+            loginInfo.innerText = userData.username;
+            loginInfoButton.innerText = "Logout";
+            loginInfoButton.onclick = function() {localStorage.removeItem('token'); location.reload()};
+        } else {
+            loginInfo.innerText = "Not logged in";
+            loginInfoButton.innerText = "Login";
+            loginInfoButton.onclick = function() {location.href = "login.html";};
+        }
+    }
+
     async function createGame() {
         const playerNumber = parseInt(document.getElementById('numOfPlayers').value);
         const gameMode = parseInt(document.getElementById('gameMode').value);
@@ -99,6 +137,8 @@
             window.location.href = "login.html";
         }
     }
+
+
 </script>
 
 </html>
