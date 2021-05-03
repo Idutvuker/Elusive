@@ -29,22 +29,18 @@ body {
 }
 
 
-.subtitle{
+.subtitle, .myText, .sign{
     color: #A661FF;
     -webkit-text-stroke: 1px white;
     font-family: var(--myFont);
     font-weight: bold;
+}
+
+.subtitle {
     font-size: 30px;
     text-align: center;
     vertical-align: top;
     margin: 0;
-}
-
-.myText {
-    color: #A661FF;
-    -webkit-text-stroke: 1px white;
-    font-family: var(--myFont);
-    font-weight: bold;
 }
 
 .loginInfo {
@@ -73,10 +69,6 @@ body {
 }
 
 .sign {
-    color: #A661FF;
-    -webkit-text-stroke: 1px white;
-    font-family: var(--myFont);
-    font-weight: bold;
     font-size: 50px;
     text-align: center;
     padding-top: 40px;
@@ -125,8 +117,7 @@ body {
     font-size: 20px;
     color: white;
     display: block;
-    margin: auto;
-    margin-top: 20px;
+    margin: 20px auto auto;
     padding-top: 5px;
     padding-bottom: 5px;
 }
@@ -271,37 +262,6 @@ li{
     display: flex;
     align-items: center;
     justify-content: flex-start;
-}
-
-.customizationTitle{
-    color: #A661FF;
-    -webkit-text-stroke: 1px white;
-    font-family: var(--myFont);
-    font-weight: bold;
-    font-size: 30px;
-    text-align: center;
-    vertical-align: top;
-    margin: 0;
-}
-
-select {
-    width: 30%;
-    cursor: pointer;
-    color: white;
-    font-weight: 700;
-    font-size: 30px;
-    letter-spacing: 1px;
-    background: #D1ADFF;
-    border-radius: 20px;
-    outline: none;
-    box-sizing: border-box;
-    border: 4px solid white !important;
-    text-align: center;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    font-family: var(--myFont);
-    margin-left: 20px;
-    text-align-last:center;
 }
 
 #countOfPlayers {
