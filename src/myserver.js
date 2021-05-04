@@ -4,7 +4,6 @@ const User = require('./model/user');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const path = require('path');
-const gameserver = require('./gameserver');
 
 mongoose.connect('mongodb://localhost:27017/login-app-db', {
     useNewUrlParser: true,
@@ -33,7 +32,13 @@ let myServer = {
             level: 'corners'
         };
 
-        let game = gameserver(server, default_gamedata)
+        server.listen(process.env.PORT || 3000, function () {
+            console.log(`Listening on ${server.address().port}`);
+        });
+
+        const gameserver = require('./gameserver')(server);
+
+        gameserver.reset(default_gamedata);
 
         app.use(express.json());
         app.use(express.urlencoded({extended: true}));
@@ -110,17 +115,10 @@ let myServer = {
             if (user == null) {
                 res.json({status: 'error', error: 'Authorization failed!'});
             } else {
-                game.quit()
-                game = gameserver(server, gameData);
+                gameserver.reset(gameData);
                 res.json({status: 'ok', gameID: Math.random()});
             }
         });
-
-
-        server.listen(process.env.PORT || 3000, function () {
-            console.log(`Listening on ${server.address().port}`);
-        });
-
     }
 }
 

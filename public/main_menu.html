@@ -12,7 +12,7 @@
 <header>
     <div class="loginInfoBox">
         <p class="myText loginInfo" id="loginInfo"></p>
-        <button id="loginInfoButton" style="display: inline-block"></button>
+        <button class="menuButton" id="loginInfoButton" style="display: inline-block"></button>
     </div>
 </header>
 
@@ -26,12 +26,15 @@
 <!--            <li><a href="#" class="gameRef">Game 4</a></li>-->
 <!--        </ul>-->
 <!--    </div>-->
+    <div id="gameInfo" class="column">
+        <a class="menuButton" id="joinGame" href="game.html">Join game</a>
+    </div>
     <div class="column" id="gameCreation">
         <h1 class="title" id="Menu">MENU</h1>
         <h2 class="subtitle">CREATE NEW GAME</h2>
         <form class="formGameCreation" action="/TODO">
             <div class="customizationContainer">
-                <label for="numOfPlayers" class="subtitle">Number of players</label>
+                <label for="numOfPlayers" class="subtitle">MAX PLAYERS</label>
                 <select name="numOfPlayers" id="numOfPlayers">
                     <option value=1>1</option>
                     <option value=2>2</option>
@@ -53,6 +56,7 @@
             <div class="customizationContainer">
                 <label for="scoreLimit" class="subtitle">SCORE LIMIT</label>
                 <select name="scoreLimit" id="scoreLimit">
+                    <option value=2>2 kills</option>
                     <option value=4>4 kills</option>
                     <option value=8>8 kills</option>
                     <option value=12>12 kills</option>
@@ -68,7 +72,7 @@
             <br><br>
         </form>
 
-        <button id="create" onclick="createGame()">CREATE</button>
+        <button class="menuButton" id="create" onclick="createGame()">CREATE</button>
 
     </div>
 </div>

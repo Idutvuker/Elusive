@@ -189,12 +189,12 @@ class MainScene extends Phaser.Scene {
                 fontSize: '40px',
                 fill: '#faf8f8'
             }).setOrigin(0.5).setDepth(3);
-            this.backToMainMenuButton = self.add.text(screenCenterX, screenCenterY + spacerSize, 'Back to main menu', {
-                fontSize: '40px',
-                fill: '#faf8f8'
-            }).setOrigin(0.5).setDepth(3)
-                .setInteractive()
-                .on('pointerdown', () => self.actionOnClick());
+            // this.backToMainMenuButton = self.add.text(screenCenterX, screenCenterY + spacerSize, 'Back to main menu', {
+            //     fontSize: '40px',
+            //     fill: '#faf8f8'
+            // }).setOrigin(0.5).setDepth(3)
+            //     .setInteractive()
+            //     .on('pointerdown', () => self.actionOnClick());
         });
     }
 

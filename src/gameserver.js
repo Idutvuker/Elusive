@@ -1,42 +1,64 @@
-function setup(server, gameData) {
+function create(server) {
     const myServer = require('./myserver');
     const io = require('socket.io')(server);
 
-    let players = {};
-    const scores = {};
-    const winnerCondition = parseInt(gameData.scoreLimit);
-    const mapTitle = gameData.level;
-    const countOfPlayers = parseInt(gameData.playerNumber);
-    let currentPlayersCount = 0;
-    let notKilledPLayers = 0;
-    let gameOverFlag = false;
-    let roundNumber = 1;
+    let gameData;
+    let exiting;
+    let players;
+    let scores;
+    let winnerCondition;
+    let mapTitle;
+    let countOfPlayers;
+    let currentPlayersCount;
+    let notKilledPLayers;
+    let gameOverFlag;
+    let roundNumber;
+    let playerCoordinates;
 
-    const playerCoordinates = [
-        {
-            x: Math.floor(Math.random() * 200),
-            y: Math.floor(Math.random() * 200),
-        },
-        {
-            x: Math.floor(Math.random() * 200) + 600,
-            y: Math.floor(Math.random() * 200),
-        },
-        {
-            x: Math.floor(Math.random() * 200) + 600,
-            y: Math.floor(Math.random() * 200) + 600,
-        },
-        {
-            x: Math.floor(Math.random() * 200),
-            y: Math.floor(Math.random() * 200) + 600,
+    let manage = {
+        reset: function (_gameData) {
+            gameData = _gameData
+            players = {};
+            scores = {};
+            mapTitle = gameData.level;
+            winnerCondition = parseInt(gameData.scoreLimit);
+            countOfPlayers = parseInt(gameData.playerNumber);
+            currentPlayersCount = 0;
+            notKilledPLayers = 0;
+            gameOverFlag = false;
+            roundNumber = 1;
+            exiting = true;
+
+            playerCoordinates = [
+                {
+                    x: Math.floor(Math.random() * 200),
+                    y: Math.floor(Math.random() * 200),
+                },
+                {
+                    x: Math.floor(Math.random() * 200) + 600,
+                    y: Math.floor(Math.random() * 200),
+                },
+                {
+                    x: Math.floor(Math.random() * 200) + 600,
+                    y: Math.floor(Math.random() * 200) + 600,
+                },
+                {
+                    x: Math.floor(Math.random() * 200),
+                    y: Math.floor(Math.random() * 200) + 600,
+                }
+            ];
+
+            io.emit('disconnect');
         }
-    ]
+    }
 
     function connect(socket) {
+        exiting = false;
         console.log(`${socket.id} connected`);
 
         currentPlayersCount += 1;
-
         scores[socket.id] = 0;
+
         players[socket.id] = {
             rotation: 0,
             x: playerCoordinates[currentPlayersCount - 1].x,
@@ -55,12 +77,14 @@ function setup(server, gameData) {
             socket.broadcast.emit('newPlayer', players[socket.id]);
         }
 
-        socket.on('disconnect', function () {
-            console.log(`${socket.id} disconnected`);
+        socket.on('disconnect', function (message) {
+            if (exiting !== true) {
+                console.log(`${socket.id} disconnected`);
 
-            delete players[socket.id];
-            currentPlayersCount -= 1;
-            io.emit('playerDisconnected', socket.id);
+                delete players[socket.id];
+                currentPlayersCount -= 1;
+                io.emit('playerDisconnected', socket.id);
+            }
         });
 
         socket.on('playerMovement', function (movementData) {
@@ -87,6 +111,7 @@ function setup(server, gameData) {
             if (notKilledPLayers === 1) {
                 if (gameOverFlag) {
                     io.emit('gameOver', scores[data.killerPlayerId], scores[socket.id]);
+                    setTimeout(() => manage.reset(gameData), 4000);
                 } else {
                     roundNumber += 1;
                     notKilledPLayers = countOfPlayers;
@@ -107,22 +132,16 @@ function setup(server, gameData) {
             if (userData == null) {
                 socket.emit('alert', 'Authorization failed! Disconnected.');
                 socket.disconnect();
-            }
-            else if (currentPlayersCount < countOfPlayers) {
+            } else if (currentPlayersCount < countOfPlayers) {
                 connect(socket);
-            }
-            else {
+            } else {
                 socket.emit('alert', 'Game is full');
                 socket.disconnect();
             }
         });
     });
 
-    return {
-        quit: function () {
-            io.emit('disconnect');
-        }
-    }
+    return manage;
 }
 
-module.exports = setup;
+module.exports = create;

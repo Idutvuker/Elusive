@@ -4,13 +4,13 @@
 }
 
 @font-face {
-    font-family: november;
-    src: url("../assets/fonts/novem___.ttf");
+    font-family: myff;
+    src: url("../assets/fonts/hemi head bd it.ttf");
 }
 
 :root {
-  /*--myFont: 'Press Start 2P', sans-serif;*/
-    --myFont: arcade, sans-serif;
+    /*--myFont: 'Press Start 2P', sans-serif;*/
+    --myFont: myff, sans-serif;
     --myWhite: #F3EBF6;
     --myWhite2: #F3E9FF;
     --myPurple: #BB6BD9;
@@ -24,7 +24,7 @@
     --myGrey: #888;
     --myGrey2: #aaa;
     --myDark: rgba(0, 0, 0, 0.18);
-    --myDark2: rgba(0,0,0,0.4);
+    --myDark2: rgba(0, 0, 0, 0.4);
 }
 
 body {
@@ -32,7 +32,7 @@ body {
     background-image: url(../assets/images/page_background.png);
 }
 
-.title{
+.title {
     color: var(--myPurpleLite);
     -webkit-text-stroke: 2px var(--myPurple);
     font-family: var(--myFont);
@@ -43,7 +43,7 @@ body {
 }
 
 
-.subtitle, .myText, .sign{
+.subtitle, .myText, .sign {
     color: var(--myPurple2);
     -webkit-text-stroke: 1px white;
     font-family: var(--myFont);
@@ -58,7 +58,7 @@ body {
 }
 
 .loginInfo {
-    font-size: 12pt;
+    font-size: 14pt;
     margin: 5px;
 }
 
@@ -106,7 +106,7 @@ body {
     font-family: var(--myFont);
 }
 
-.formSignIn{
+.formSignIn {
     text-align: center;
 }
 
@@ -136,7 +136,7 @@ body {
     padding-bottom: 5px;
 }
 
-.button:active{
+.button:active {
     background: white;
     color: var(--myPurple);
     outline: 0;
@@ -161,7 +161,6 @@ a {
     color: var(--myPink);
     text-decoration: none
 }
-
 
 
 .modal {
@@ -209,7 +208,7 @@ a {
     cursor: pointer;
 }
 
-.buttonsContainer{
+.buttonsContainer {
     padding-top: 20px;
     display: flex;
     justify-content: space-between;
@@ -246,19 +245,23 @@ a {
     list-style-type: none;
 }
 
-li{
+li {
     color: white;
     padding-top: 5px;
     padding-bottom: 5px;
-    border-bottom:4px solid white;
+    border-bottom: 4px solid white;
 }
 
 .gameRef {
     color: white;
 }
 
-#gameCreation {
-    flex: 60%;
+#gameCreation, #gameInfo {
+    flex: 50%;
+}
+
+#gameInfo {
+    text-align: center;
 }
 
 #Menu {
@@ -299,11 +302,11 @@ select {
     padding-bottom: 5px;
     font-family: var(--myFont);
     margin-left: 20px;
-    text-align-last:center;
+    text-align-last: center;
 }
 
-#create {
-    width: 30%;
+.menuButton {
+    display: inline-block;
     cursor: pointer;
     color: var(--myPurple2);;
     -webkit-text-stroke: 1px white;
@@ -315,22 +318,32 @@ select {
     border: 4px solid var(--myPurpleLite2);
     outline: none;
     text-align: center;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    padding: 5px;
     font-family: var(--myFont);
 }
 
-#create:hover{
+#loginInfoButton {
+    font-weight: 700;
+    font-size: 12pt;
+}
+
+.menuButton:hover {
     background: var(--myPurpleLite3);
 }
 
-#create:focus {
+.menuButton:focus {
     background: var(--myPurpleLite4);
 }
 
 #mainCanvas {
     text-align: center;
 }
+
+#mainCanvas canvas {
+    border: 4px solid var(--myDark);
+    border-radius: 5px;
+}
+
 #gameTitle {
     padding: 40px;
 }
