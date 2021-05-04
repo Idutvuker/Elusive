@@ -11,16 +11,30 @@
 :root {
   /*--myFont: 'Press Start 2P', sans-serif;*/
     --myFont: arcade, sans-serif;
+    --myWhite: #F3EBF6;
+    --myWhite2: #F3E9FF;
+    --myPurple: #BB6BD9;
+    --myPurple2: #A661FF;
+    --myPurpleLite: #E4CFFF;
+    --myPurpleLite2: #D1ADFF;
+    --myPurpleLite3: #e4cbff;
+    --myPurpleLite4: #d6adfd;
+    --myBlack: #00000055;
+    --myPink: #E1BEE7;
+    --myGrey: #888;
+    --myGrey2: #aaa;
+    --myDark: rgba(0, 0, 0, 0.18);
+    --myDark2: rgba(0,0,0,0.4);
 }
 
 body {
-    background-color: #F3EBF6;
+    background-color: var(--myWhite);
     background-image: url(../assets/images/page_background.png);
 }
 
 .title{
-    color: #E4CFFF;
-    -webkit-text-stroke: 2px #BB6BD9;
+    color: var(--myPurpleLite);
+    -webkit-text-stroke: 2px var(--myPurple);
     font-family: var(--myFont);
     font-weight: bold;
     text-align: center;
@@ -30,7 +44,7 @@ body {
 
 
 .subtitle, .myText, .sign{
-    color: #A661FF;
+    color: var(--myPurple2);
     -webkit-text-stroke: 1px white;
     font-family: var(--myFont);
     font-weight: bold;
@@ -51,14 +65,14 @@ body {
 .loginInfoBox {
     padding: 5px 10px;
     display: inline-block;
-    background: #00000055;
+    background: var(--myBlack);
     border: 2px solid white !important;
     border-radius: 5px;
     text-align: center;
 }
 
 .main {
-    background-color: #F3E9FF;
+    background-color: var(--myWhite2);
     width: 500px;
     height: 400px;
     margin: 3em auto;
@@ -80,7 +94,7 @@ body {
     font-weight: 700;
     font-size: 30px;
 
-    background: #D1ADFF;
+    background: var(--myPurpleLite2);
     border: 4px solid white !important;
     border-radius: 20px;
     outline: none;
@@ -98,7 +112,7 @@ body {
 
 
 .username:focus, .password:focus, .email:focus {
-    border: 4px solid rgba(0, 0, 0, 0.18) !important;
+    border: 4px solid var(--myDark) !important;
 }
 
 ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
@@ -110,7 +124,7 @@ body {
     width: 40%;
     cursor: pointer;
     border-radius: 5em;
-    background: #BB6BD9;
+    background: var(--myPurple);
     border: 0;
     outline: 0;
     font-family: var(--myFont);
@@ -124,12 +138,12 @@ body {
 
 .button:active{
     background: white;
-    color: #BB6BD9;
+    color: var(--myPurple);
     outline: 0;
 }
 
 .signUp {
-    color: #E1BEE7;
+    color: var(--myPink);
     cursor: pointer;
     font-family: var(--myFont);
     text-align: center;
@@ -144,7 +158,7 @@ body {
 
 a {
     text-align: center;
-    color: #E1BEE7;
+    color: var(--myPink);
     text-decoration: none
 }
 
@@ -158,15 +172,15 @@ a {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.4);
+    background-color: var(--myDark2);
 }
 
 /* Modal Content/Box */
 .modal-content {
-    background-color: #F3E9FF;
+    background-color: var(--myWhite2);
     margin: 15% auto; /* 15% from the top and centered */
     padding: 20px;
-    border: 1px solid #888;
+    border: 1px solid var(--myGrey);
     width: 50%; /* Could be more or less, depending on screen size */
     border-radius: 1.5em;
     text-align: center;
@@ -182,7 +196,7 @@ a {
 
 /* The Close Button */
 .close {
-    color: #aaa;
+    color: var(--myGrey2);
     float: right;
     font-size: 28px;
     font-weight: bold;
@@ -221,7 +235,7 @@ a {
     font-weight: 700;
     font-size: 30px;
     letter-spacing: 1px;
-    background: #D1ADFF;
+    background: var(--myPurpleLite2);
     border-radius: 20px;
     outline: none;
     box-sizing: border-box;
@@ -268,24 +282,6 @@ li{
     width: 10%;
 }
 
-#create {
-    width: 30%;
-    cursor: pointer;
-    color: #A661FF;
-    -webkit-text-stroke: 1px white;
-    font-weight: 700;
-    font-size: 30px;
-    letter-spacing: 1px;
-    background: #F3E9FF;
-    box-sizing: border-box;
-    border: 4px solid #D1ADFF;
-    outline: none;
-    text-align: center;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    font-family: var(--myFont);
-}
-
 select {
     width: 30%;
     cursor: pointer;
@@ -293,7 +289,7 @@ select {
     font-weight: 700;
     font-size: 30px;
     letter-spacing: 1px;
-    background: #D1ADFF;
+    background: var(--myPurpleLite2);
     border-radius: 20px;
     outline: none;
     box-sizing: border-box;
@@ -306,12 +302,30 @@ select {
     text-align-last:center;
 }
 
+#create {
+    width: 30%;
+    cursor: pointer;
+    color: var(--myPurple2);;
+    -webkit-text-stroke: 1px white;
+    font-weight: 700;
+    font-size: 30px;
+    letter-spacing: 1px;
+    background: var(--myWhite2);
+    box-sizing: border-box;
+    border: 4px solid var(--myPurpleLite2);
+    outline: none;
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    font-family: var(--myFont);
+}
+
 #create:hover{
-    background: #e4cbff;
+    background: var(--myPurpleLite3);
 }
 
 #create:focus {
-    background: #d6adfd;
+    background: var(--myPurpleLite4);
 }
 
 #mainCanvas {
