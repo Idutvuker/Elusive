@@ -26,6 +26,15 @@ let myServer = {
     setup: function(app) {
         const server = require('http').Server(app);
 
+        const default_gamedata = {
+            playerNumber: 2,
+            gameMode: 1,
+            scoreLimit: 4,
+            level: 'corners'
+        };
+
+        let game = gameserver(server, default_gamedata)
+
         app.use(express.json());
         app.use(express.urlencoded({extended: true}));
 
@@ -101,7 +110,8 @@ let myServer = {
             if (user == null) {
                 res.json({status: 'error', error: 'Authorization failed!'});
             } else {
-                gameserver(server, gameData);
+                game.quit()
+                game = gameserver(server, gameData);
                 res.json({status: 'ok', gameID: Math.random()});
             }
         });

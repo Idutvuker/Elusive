@@ -108,11 +108,21 @@ function setup(server, gameData) {
                 socket.emit('alert', 'Authorization failed! Disconnected.');
                 socket.disconnect();
             }
-            else {
+            else if (currentPlayersCount < countOfPlayers) {
                 connect(socket);
+            }
+            else {
+                socket.emit('alert', 'Game is full');
+                socket.disconnect();
             }
         });
     });
+
+    return {
+        quit: function () {
+            io.emit('disconnect');
+        }
+    }
 }
 
 module.exports = setup;

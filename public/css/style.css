@@ -286,6 +286,26 @@ li{
     font-family: var(--myFont);
 }
 
+select {
+    width: 30%;
+    cursor: pointer;
+    color: white;
+    font-weight: 700;
+    font-size: 30px;
+    letter-spacing: 1px;
+    background: #D1ADFF;
+    border-radius: 20px;
+    outline: none;
+    box-sizing: border-box;
+    border: 4px solid white !important;
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    font-family: var(--myFont);
+    margin-left: 20px;
+    text-align-last:center;
+}
+
 #create:hover{
     background: #e4cbff;
 }
