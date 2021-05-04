@@ -57,20 +57,6 @@ body {
     margin: 0;
 }
 
-.loginInfo {
-    font-size: 14pt;
-    margin: 5px;
-}
-
-.loginInfoBox {
-    padding: 5px 10px;
-    display: inline-block;
-    background: var(--myBlack);
-    border: 2px solid white !important;
-    border-radius: 5px;
-    text-align: center;
-}
-
 .main {
     background-color: var(--myWhite2);
     width: 500px;
@@ -324,7 +310,28 @@ select {
 
 #loginInfoButton {
     font-weight: 700;
-    font-size: 12pt;
+    font-size: 16pt;
+    display: block;
+}
+
+.loginInfo {
+    font-size: 24pt;
+    margin: 5px;
+}
+
+.loginInfoBox {
+    margin-bottom: 50px;
+    padding: 10px;
+    display: inline-block;
+    width: 50%;
+    background: var(--myBlack);
+    border: 2px solid white !important;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.blockWrapper{
+    display: block;
 }
 
 .menuButton:hover {

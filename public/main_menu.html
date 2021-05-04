@@ -10,27 +10,32 @@
 <body>
 
 <header>
-    <div class="loginInfoBox">
-        <p class="myText loginInfo" id="loginInfo"></p>
-        <button class="menuButton" id="loginInfoButton" style="display: inline-block"></button>
-    </div>
+
+
+    <h1 class="title" id="Menu">MENU</h1>
 </header>
 
 <div class="row">
-<!--    <div class="column" id="games">-->
-<!--        <input type="search" class="un" id="search" onkeyup="filterList()">-->
-<!--        <ul id="gamesList">-->
-<!--            <li><a href="#" class="gameRef">Game 1</a></li>-->
-<!--            <li><a href="#" class="gameRef">Game 2</a></li>-->
-<!--            <li><a href="#" class="gameRef">Game 3</a></li>-->
-<!--            <li><a href="#" class="gameRef">Game 4</a></li>-->
-<!--        </ul>-->
-<!--    </div>-->
+    <!--    <div class="column" id="games">-->
+    <!--        <input type="search" class="un" id="search" onkeyup="filterList()">-->
+    <!--        <ul id="gamesList">-->
+    <!--            <li><a href="#" class="gameRef">Game 1</a></li>-->
+    <!--            <li><a href="#" class="gameRef">Game 2</a></li>-->
+    <!--            <li><a href="#" class="gameRef">Game 3</a></li>-->
+    <!--            <li><a href="#" class="gameRef">Game 4</a></li>-->
+    <!--        </ul>-->
+    <!--    </div>-->
     <div id="gameInfo" class="column">
+        <div class="blockWrapper">
+            <div class="loginInfoBox">
+                <p class="myText loginInfo" id="loginInfo"></p>
+                <button class="menuButton" id="loginInfoButton" style="display: inline-block"></button>
+            </div>
+        </div>
+
         <a class="menuButton" id="joinGame" href="game.html">Join game</a>
     </div>
     <div class="column" id="gameCreation">
-        <h1 class="title" id="Menu">MENU</h1>
         <h2 class="subtitle">CREATE NEW GAME</h2>
         <form class="formGameCreation" action="/TODO">
             <div class="customizationContainer">
@@ -113,11 +118,16 @@
             userData = result.userData;
             loginInfo.innerText = userData.username;
             loginInfoButton.innerText = "Logout";
-            loginInfoButton.onclick = function() {localStorage.removeItem('token'); location.reload()};
+            loginInfoButton.onclick = function () {
+                localStorage.removeItem('token');
+                location.reload()
+            };
         } else {
             loginInfo.innerText = "Not logged in";
             loginInfoButton.innerText = "Login";
-            loginInfoButton.onclick = function() {location.href = "login.html";};
+            loginInfoButton.onclick = function () {
+                location.href = "login.html";
+            };
         }
     }
 
